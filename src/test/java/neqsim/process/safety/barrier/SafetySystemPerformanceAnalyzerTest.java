@@ -126,7 +126,7 @@ class SafetySystemPerformanceAnalyzerTest {
 
     neqsim.process.safety.risk.sis.SafetyInstrumentedFunction quantitativeSif =
         neqsim.process.safety.risk.sis.SafetyInstrumentedFunction.builder().id("B-SIF-101")
-            .name("B-SIF-101 quantitative SIL").description("SIF shutdown protects V-101").sil(2)
+            .name("B-SIF-101 quantitative SIL").description("SIF shutdown protects V-101").sil(3)
             .pfd(8.0e-4).architecture("1oo2").testIntervalHours(8760.0)
             .addProtectedEquipment("V-101").build();
 

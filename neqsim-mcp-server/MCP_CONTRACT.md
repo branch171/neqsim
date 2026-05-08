@@ -94,6 +94,7 @@ industrial validation.
 | `runFlareNetwork` | CALCULATION | v1.3 | Flare radiation profile and API 521 safe-distance contour |
 | `runHAZOP` | CALCULATION | v1.4 | Simulation-backed IEC 61882 HAZOP worksheets from ProcessSystem scenarios and document evidence |
 | `runBarrierRegister` | CALCULATION | v1.4 | Evidence-linked PSF/SCE barrier register validation with LOPA/SIL/bow-tie/QRA handoffs |
+| `runSafetySystemPerformance` | CALCULATION | v1.4 | Active/passive safety-system performance analysis with quantitative SIL/PFD bridge |
 
 ## Experimental Tools
 

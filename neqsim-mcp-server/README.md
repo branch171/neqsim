@@ -129,7 +129,7 @@ limitations, and unsupported conditions.
 
 ---
 
-## Tier 2 — Engineering Advanced (18 tools)
+## Tier 2 — Engineering Advanced (21 tools)
 
 Tested against literature and industry cases. Available in `DESKTOP_ENGINEER`
 and `STUDY_TEAM` modes. Blocked in `DIGITAL_TWIN` and `ENTERPRISE` by
@@ -148,6 +148,8 @@ code-level `enforceAccess()` — returns structured error JSON, not a silent ski
 | `generateReport` | Structured engineering report generation |
 | `generateVisualization` | Inline SVG/Mermaid/HTML visualization |
 | `queryDataCatalog` | Browse component, standards, material, and EOS databases |
+| `setSimulationVariable` | Set an input variable and re-run a simulation |
+| `saveSimulationState` | Save process state as a JSON snapshot |
 | `runRelief` | PSV sizing per API 520/521 |
 | `runLOPA` | Layer of Protection Analysis per IEC 61511 / CCPS |
 | `runSIL` | SIL verification per IEC 61508 / IEC 61511 |
@@ -155,6 +157,7 @@ code-level `enforceAccess()` — returns structured error JSON, not a silent ski
 | `runFlareNetwork` | Flare radiation and safe-distance contours |
 | `runHAZOP` | Simulation-backed IEC 61882 HAZOP worksheets from ProcessSystem scenarios |
 | `runBarrierRegister` | Evidence-linked PSF/SCE barrier register handoffs |
+| `runSafetySystemPerformance` | Active/passive safety-system performance analysis with quantitative SIL/PFD bridge |
 
 ---
 

@@ -447,7 +447,7 @@ public final class ExampleCatalog {
         + "      {\"name\": \"GD-103\", \"type\": \"GAS\", "
         + "\"alarmLevel\": \"HIGH_HIGH\", \"setpoint\": 60.0, \"unit\": \"%LEL\"}\n" + "    ]\n"
         + "  }],\n" + "  \"quantitativeSifs\": [{\n" + "    \"id\": \"B-FGS-101\",\n"
-        + "    \"name\": \"B-FGS-101 quantitative SIL\",\n" + "    \"claimedSIL\": 2,\n"
+        + "    \"name\": \"B-FGS-101 quantitative SIL\",\n" + "    \"claimedSIL\": 3,\n"
         + "    \"architecture\": \"2oo3\",\n" + "    \"pfdAvg\": 0.0008,\n"
         + "    \"proofTestInterval_hours\": 8760.0,\n"
         + "    \"protectedEquipment\": [\"V-101\"],\n" + "    \"category\": \"FIRE_GAS\"\n"

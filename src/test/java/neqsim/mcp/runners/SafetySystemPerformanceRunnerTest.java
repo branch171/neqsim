@@ -24,7 +24,8 @@ class SafetySystemPerformanceRunnerTest {
     JsonObject obj = JsonParser.parseString(result).getAsJsonObject();
 
     assertEquals("success", obj.get("status").getAsString());
-    assertEquals("PASS", obj.getAsJsonObject("summary").get("overallVerdict").getAsString());
+    assertEquals("PASS_WITH_WARNINGS",
+        obj.getAsJsonObject("summary").get("overallVerdict").getAsString());
     assertTrue(obj.getAsJsonObject("performanceReport").has("assessments"));
     assertTrue(obj.getAsJsonObject("standardsTemplates").has("NORSOK-S-001"));
     assertTrue(obj.getAsJsonObject("stidExtractionTemplates").has("causeAndEffect"));
