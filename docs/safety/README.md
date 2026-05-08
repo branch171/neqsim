@@ -56,6 +56,7 @@ This folder contains guides for implementing safety systems in process simulatio
 
 | Document | Description |
 |----------|-------------|
+| [Trapped Inventory Calculator](trapped_inventory_calculator.md) | Evidence-linked trapped inventory for isolation, blowdown, flare-load, and MDMT screening |
 | [psv_dynamic_sizing_example.md](psv_dynamic_sizing_example) | Pressure Safety Valve dynamic sizing |
 | [rupture_disk_dynamic_behavior.md](rupture_disk_dynamic_behavior) | Rupture disk dynamic behavior |
 

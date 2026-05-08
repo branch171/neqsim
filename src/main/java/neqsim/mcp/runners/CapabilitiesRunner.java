@@ -131,6 +131,7 @@ public class CapabilitiesRunner {
         "runBioprocess — Bioprocessing reactors (anaerobic digester, fermentation, gasification, pyrolysis)",
         "runHAZOP — Simulation-backed IEC 61882 HAZOP worksheets from ProcessSystem scenarios",
         "runBarrierRegister — Evidence-linked SCE/barrier register validation and safety handoff",
+        "runSafetySystemPerformance — STID-derived active/passive safety-system performance analysis with quantitative SIL/PFD bridge",
         "searchComponents — Component database search",
         "validateInput — Pre-flight input validation",
         "crossValidateModels — Run process under multiple EOS to quantify model risk",

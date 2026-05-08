@@ -404,6 +404,57 @@ public final class ExampleCatalog {
   }
 
   /**
+   * Returns a safety-system performance analysis example.
+   *
+   * @return JSON string for SafetySystemPerformanceRunner.run()
+   */
+  public static String safetySystemPerformance() {
+    return "{\n" + "  \"register\": {\n" + "    \"registerId\": \"BR-SAFETY-SYSTEM-001\",\n"
+        + "    \"name\": \"Safety critical systems performance review\",\n"
+        + "    \"evidence\": [{\n" + "      \"evidenceId\": \"EV-CE-001\",\n"
+        + "      \"documentId\": \"CE-001\",\n"
+        + "      \"documentTitle\": \"Cause and effect chart\",\n" + "      \"revision\": \"C\",\n"
+        + "      \"section\": \"F&G actions\",\n" + "      \"page\": 4,\n"
+        + "      \"sourceReference\": \"FGS-101 voting group\",\n"
+        + "      \"excerpt\": \"2oo3 gas detection activates deluge for V-101.\",\n"
+        + "      \"confidence\": 0.94\n" + "    }],\n" + "    \"performanceStandards\": [{\n"
+        + "      \"id\": \"PS-FGS-101\",\n"
+        + "      \"title\": \"Fire and gas detection performance\",\n"
+        + "      \"safetyFunction\": \"Detect gas release and activate deluge\",\n"
+        + "      \"demandMode\": \"LOW_DEMAND\",\n" + "      \"targetPfd\": 0.001,\n"
+        + "      \"requiredAvailability\": 0.99,\n" + "      \"responseTimeSeconds\": 20.0,\n"
+        + "      \"acceptanceCriteria\": [\"2oo3 F&G voting shall activate deluge\"],\n"
+        + "      \"evidenceRefs\": [\"EV-CE-001\"]\n" + "    }],\n" + "    \"barriers\": [{\n"
+        + "      \"id\": \"B-FGS-101\",\n" + "      \"name\": \"F&G detection for V-101\",\n"
+        + "      \"description\": \"Gas detectors activate deluge and ESD\",\n"
+        + "      \"type\": \"MITIGATION\",\n" + "      \"status\": \"AVAILABLE\",\n"
+        + "      \"pfd\": 0.0008,\n" + "      \"performanceStandardId\": \"PS-FGS-101\",\n"
+        + "      \"equipmentTags\": [\"V-101\", \"GD-101\", \"GD-102\", \"GD-103\"],\n"
+        + "      \"hazardIds\": [\"LOC-V-101\"],\n" + "      \"evidenceRefs\": [\"EV-CE-001\"]\n"
+        + "    }]\n" + "  },\n" + "  \"demands\": [{\n" + "    \"demandId\": \"D-FGS-101\",\n"
+        + "    \"barrierId\": \"B-FGS-101\",\n" + "    \"category\": \"FIRE_GAS_DETECTION\",\n"
+        + "    \"requiredResponseTimeSeconds\": 20.0,\n"
+        + "    \"actualResponseTimeSeconds\": 10.0,\n" + "    \"requiredAvailability\": 0.99,\n"
+        + "    \"actualAvailability\": 0.996\n" + "  }],\n" + "  \"measurementDevices\": [\n"
+        + "    {\"type\": \"gas\", \"name\": \"GD-101\", \"tag\": \"GD-101\", "
+        + "\"location\": \"Module M01\", \"responseTimeSeconds\": 8.0}\n" + "  ],\n"
+        + "  \"logicSifs\": [{\n" + "    \"name\": \"B-FGS-101 voting\",\n"
+        + "    \"votingLogic\": \"2oo3\",\n" + "    \"detectors\": [\n"
+        + "      {\"name\": \"GD-101\", \"type\": \"GAS\", "
+        + "\"alarmLevel\": \"HIGH_HIGH\", \"setpoint\": 60.0, \"unit\": \"%LEL\"},\n"
+        + "      {\"name\": \"GD-102\", \"type\": \"GAS\", "
+        + "\"alarmLevel\": \"HIGH_HIGH\", \"setpoint\": 60.0, \"unit\": \"%LEL\"},\n"
+        + "      {\"name\": \"GD-103\", \"type\": \"GAS\", "
+        + "\"alarmLevel\": \"HIGH_HIGH\", \"setpoint\": 60.0, \"unit\": \"%LEL\"}\n" + "    ]\n"
+        + "  }],\n" + "  \"quantitativeSifs\": [{\n" + "    \"id\": \"B-FGS-101\",\n"
+        + "    \"name\": \"B-FGS-101 quantitative SIL\",\n" + "    \"claimedSIL\": 2,\n"
+        + "    \"architecture\": \"2oo3\",\n" + "    \"pfdAvg\": 0.0008,\n"
+        + "    \"proofTestInterval_hours\": 8760.0,\n"
+        + "    \"protectedEquipment\": [\"V-101\"],\n" + "    \"category\": \"FIRE_GAS\"\n"
+        + "  }]\n" + "}";
+  }
+
+  /**
    * Returns a session add-equipment example (requires a valid sessionId).
    *
    * @return JSON string for SessionRunner.run()
@@ -690,7 +741,7 @@ public final class ExampleCatalog {
     } else if ("comparison".equals(category)) {
       return Arrays.asList("two-cases");
     } else if ("safety".equals(category)) {
-      return Arrays.asList("barrier-register", "hazop-study");
+      return Arrays.asList("barrier-register", "safety-system-performance", "hazop-study");
     }
     return Collections.emptyList();
   }
@@ -816,6 +867,9 @@ public final class ExampleCatalog {
     } else if ("safety".equals(category)) {
       if ("barrier-register".equals(name)) {
         return safetyBarrierRegister();
+      }
+      if ("safety-system-performance".equals(name)) {
+        return safetySystemPerformance();
       }
       if ("hazop-study".equals(name)) {
         return safetyHazopStudy();
@@ -943,6 +997,8 @@ public final class ExampleCatalog {
     Map<String, String> safetyExamples = new LinkedHashMap<String, String>();
     safetyExamples.put("barrier-register",
         "Evidence-linked SCE/barrier register with LOPA, SIL, bow-tie, and QRA handoffs");
+    safetyExamples.put("safety-system-performance",
+        "Safety-system barrier performance analysis from STID and SIF data");
     safetyExamples.put("hazop-study",
         "Simulation-backed IEC 61882 HAZOP worksheet from process scenarios and STID evidence");
     catalog.put("safety", safetyExamples);

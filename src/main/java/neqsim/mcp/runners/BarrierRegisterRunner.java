@@ -18,9 +18,9 @@ import neqsim.process.safety.barrier.SafetyCriticalElement;
  * MCP runner for barrier-register validation and safety-analysis handoff generation.
  *
  * <p>
- * The runner accepts JSON extracted from technical documentation and returns an audit-focused
- * view of safety critical elements (SCEs), barriers, performance standards, document evidence,
- * and handoff blocks for LOPA, SIL, bow-tie, and QRA workflows.
+ * The runner accepts JSON extracted from technical documentation and returns an audit-focused view
+ * of safety critical elements (SCEs), barriers, performance standards, document evidence, and
+ * handoff blocks for LOPA, SIL, bow-tie, and QRA workflows.
  * </p>
  *
  * @author ESOL
@@ -76,7 +76,7 @@ public final class BarrierRegisterRunner {
    * @param input register JSON object
    * @return parsed register context
    */
-  private static ParsedRegister parseRegister(JsonObject input) {
+  static ParsedRegister parseRegister(JsonObject input) {
     ParsedRegister parsed = new ParsedRegister();
     parsed.register = new BarrierRegister(optString(input, "registerId", "BR-UNNAMED"))
         .setName(optString(input, "name", ""));
@@ -122,9 +122,9 @@ public final class BarrierRegisterRunner {
   private static DocumentEvidence parseEvidence(JsonObject input) {
     return new DocumentEvidence(optString(input, "evidenceId", ""),
         optString(input, "documentId", ""), optString(input, "documentTitle", ""),
-        optString(input, "revision", ""), optString(input, "section", ""),
-        optInt(input, "page", 0), optString(input, "sourceReference", ""),
-        optString(input, "excerpt", ""), optDouble(input, "confidence", 0.0));
+        optString(input, "revision", ""), optString(input, "section", ""), optInt(input, "page", 0),
+        optString(input, "sourceReference", ""), optString(input, "excerpt", ""),
+        optDouble(input, "confidence", 0.0));
   }
 
   /**
@@ -136,10 +136,10 @@ public final class BarrierRegisterRunner {
    */
   private static PerformanceStandard parsePerformanceStandard(JsonObject input,
       ParsedRegister parsed) {
-    PerformanceStandard standard = new PerformanceStandard(optString(input, "id", ""))
-        .setTitle(optString(input, "title", ""))
-        .setSafetyFunction(optString(input, "safetyFunction", ""))
-        .setDemandMode(parseDemandMode(optString(input, "demandMode", "OTHER")));
+    PerformanceStandard standard =
+        new PerformanceStandard(optString(input, "id", "")).setTitle(optString(input, "title", ""))
+            .setSafetyFunction(optString(input, "safetyFunction", ""))
+            .setDemandMode(parseDemandMode(optString(input, "demandMode", "OTHER")));
     if (hasNumber(input, "targetPfd")) {
       standard.setTargetPfd(input.get("targetPfd").getAsDouble());
     }
@@ -169,8 +169,7 @@ public final class BarrierRegisterRunner {
    */
   private static SafetyBarrier parseBarrier(JsonObject input, ParsedRegister parsed) {
     SafetyBarrier barrier = new SafetyBarrier(optString(input, "id", ""))
-        .setName(optString(input, "name", ""))
-        .setDescription(optString(input, "description", ""))
+        .setName(optString(input, "name", "")).setDescription(optString(input, "description", ""))
         .setType(parseBarrierType(optString(input, "type", "PREVENTION")))
         .setStatus(parseBarrierStatus(optString(input, "status", "UNKNOWN")))
         .setSafetyFunction(optString(input, "safetyFunction", ""))
@@ -220,8 +219,7 @@ public final class BarrierRegisterRunner {
   private static SafetyCriticalElement parseSafetyCriticalElement(JsonObject input,
       ParsedRegister parsed) {
     final SafetyCriticalElement sce = new SafetyCriticalElement(optString(input, "id", ""))
-        .setTag(optString(input, "tag", ""))
-        .setName(optString(input, "name", ""))
+        .setTag(optString(input, "tag", "")).setName(optString(input, "name", ""))
         .setType(parseElementType(optString(input, "type", "OTHER")))
         .setOwner(optString(input, "owner", ""));
     addStringArrayValues(input, "equipmentTags", new StringConsumer() {
@@ -403,7 +401,8 @@ public final class BarrierRegisterRunner {
     summary.addProperty("availableBarrierCount", available);
     summary.addProperty("impairedBarrierCount", parsed.register.getImpairedBarriers().size());
     summary.addProperty("barriersWithTraceableEvidence", traceable);
-    summary.addProperty("performanceStandardCount", parsed.register.getPerformanceStandards().size());
+    summary.addProperty("performanceStandardCount",
+        parsed.register.getPerformanceStandards().size());
     summary.addProperty("registerEvidenceItemCount", parsed.evidenceById.size());
     return summary;
   }
@@ -541,9 +540,9 @@ public final class BarrierRegisterRunner {
         row.addProperty("performanceStandardId", standard.getId());
         row.addProperty("demandMode", standard.getDemandMode().name());
         row.addProperty("targetPfd", standard.getTargetPfd());
-        row.addProperty("targetMet", isFiniteProbability(barrier.getPfd())
-            && isFiniteProbability(standard.getTargetPfd())
-            && barrier.getPfd() <= standard.getTargetPfd());
+        row.addProperty("targetMet",
+            isFiniteProbability(barrier.getPfd()) && isFiniteProbability(standard.getTargetPfd())
+                && barrier.getPfd() <= standard.getTargetPfd());
         row.addProperty("proofTestInterval_hours", standard.getProofTestIntervalHours());
         row.addProperty("responseTime_seconds", standard.getResponseTimeSeconds());
       }
@@ -614,16 +613,59 @@ public final class BarrierRegisterRunner {
    *
    * @return extraction template JSON
    */
-  private static JsonObject buildDocumentExtractionTemplate() {
+  static JsonObject buildDocumentExtractionTemplate() {
     JsonObject template = new JsonObject();
-    template.add("sourceDocuments", toStringArray(new String[] {"P&ID", "C&E chart", "SRS",
-        "SIL verification report", "inspection report", "vendor datasheet"}));
+    template.add("sourceDocuments",
+        toStringArray(new String[] {"P&ID", "C&E chart", "SRS", "SIL verification report",
+            "firewater datasheet", "detector layout", "PFP schedule", "inspection report",
+            "vendor datasheet"}));
     template.add("targetObjects", toStringArray(new String[] {"DocumentEvidence",
         "PerformanceStandard", "SafetyBarrier", "SafetyCriticalElement", "BarrierRegister"}));
-    template.add("minimumFields", toStringArray(new String[] {"documentId", "revision",
-        "sourceReference", "excerpt", "confidence", "equipmentTags", "pfd or effectiveness",
-        "status", "performanceStandardId"}));
+    template.add("minimumFields",
+        toStringArray(
+            new String[] {"documentId", "revision", "sourceReference", "excerpt", "confidence",
+                "equipmentTags", "pfd or effectiveness", "status", "performanceStandardId"}));
+    template.add("causeAndEffect",
+        buildExtractionSection("Cause-and-effect chart",
+            new String[] {"causeId", "initiatingDetectorTag", "initiatingEvent", "votingLogic",
+                "effectAction", "finalElementTag", "delaySeconds", "resetRequirement",
+                "bypassOrInhibitState", "evidenceRefs"}));
+    template.add("safetyRequirementsSpecification",
+        buildExtractionSection("Safety requirements specification",
+            new String[] {"sifId", "safetyFunction", "protectedEquipment", "safeState",
+                "claimedSIL", "targetPfd", "proofTestIntervalHours", "responseTimeSeconds",
+                "architecture", "components", "evidenceRefs"}));
+    template.add("firewaterDatasheet",
+        buildExtractionSection("Firewater and deluge datasheet",
+            new String[] {"delugeZone", "protectedEquipment", "applicationRate", "rateUnit",
+                "firewaterCapacity", "capacityUnit", "minimumPressure", "responseTimeSeconds",
+                "designBasisFire", "standardReference", "evidenceRefs"}));
+    template.add("detectorLayout",
+        buildExtractionSection("Detector layout and F&G coverage",
+            new String[] {"detectorTag", "detectorType", "gasSpecies", "location", "coverageZone",
+                "setpoint", "setpointUnit", "responseTimeSeconds", "votingGroup", "evidenceRefs"}));
+    template.add("pfpSchedule",
+        buildExtractionSection("Passive fire protection schedule",
+            new String[] {"protectedTag", "protectedArea", "fireRatingMinutes", "heatFluxRating",
+                "ratingUnit", "material", "thickness", "thicknessUnit", "inspectionStatus",
+                "evidenceRefs"}));
     return template;
+  }
+
+  /**
+   * Builds one document-extraction template section.
+   *
+   * @param documentType source document type
+   * @param fields fields agents should extract from that document type
+   * @return extraction-section JSON object
+   */
+  private static JsonObject buildExtractionSection(String documentType, String[] fields) {
+    JsonObject section = new JsonObject();
+    section.addProperty("documentType", documentType);
+    section.add("fields", toStringArray(fields));
+    section.addProperty("evidenceRule",
+        "Each extracted row should include sourceReference, excerpt, confidence, and evidenceRefs.");
+    return section;
   }
 
   /**
@@ -633,7 +675,8 @@ public final class BarrierRegisterRunner {
    * @param field field name
    * @param consumer string consumer
    */
-  private static void addStringArrayValues(JsonObject input, String field, StringConsumer consumer) {
+  private static void addStringArrayValues(JsonObject input, String field,
+      StringConsumer consumer) {
     JsonArray array = optArray(input, field);
     for (JsonElement element : array) {
       consumer.accept(element.getAsString());
@@ -760,7 +803,8 @@ public final class BarrierRegisterRunner {
    */
   private static SafetyCriticalElement.ElementType parseElementType(String value) {
     try {
-      return SafetyCriticalElement.ElementType.valueOf(value.trim().toUpperCase().replace('-', '_'));
+      return SafetyCriticalElement.ElementType
+          .valueOf(value.trim().toUpperCase().replace('-', '_'));
     } catch (Exception ex) {
       return SafetyCriticalElement.ElementType.OTHER;
     }
@@ -900,9 +944,8 @@ public final class BarrierRegisterRunner {
     JsonObject summary = new JsonObject();
     summary.addProperty("traceable", barrier.hasTraceableEvidence());
     summary.addProperty("directEvidenceCount", barrier.getEvidence().size());
-    summary.addProperty("hasPerformanceStandardEvidence",
-        barrier.getPerformanceStandard() != null
-            && barrier.getPerformanceStandard().hasTraceableEvidence());
+    summary.addProperty("hasPerformanceStandardEvidence", barrier.getPerformanceStandard() != null
+        && barrier.getPerformanceStandard().hasTraceableEvidence());
     return summary;
   }
 
@@ -945,7 +988,7 @@ public final class BarrierRegisterRunner {
   }
 
   /** Parsed register context and lookup maps. */
-  private static class ParsedRegister {
+  static class ParsedRegister {
     BarrierRegister register;
     final Map<String, DocumentEvidence> evidenceById =
         new LinkedHashMap<String, DocumentEvidence>();
@@ -982,15 +1025,14 @@ public final class BarrierRegisterRunner {
       row.addProperty("type", barrier.getType().name());
       row.addProperty("status", barrier.getStatus().name());
       row.addProperty("credited", false);
-        if (canCreditBarrier(barrier)
-          && (barrier.getType() == SafetyBarrier.BarrierType.PREVENTION
-            || barrier.getType() == SafetyBarrier.BarrierType.BOTH)) {
+      if (canCreditBarrier(barrier) && (barrier.getType() == SafetyBarrier.BarrierType.PREVENTION
+          || barrier.getType() == SafetyBarrier.BarrierType.BOTH)) {
         topEventFrequencyMultiplier *= barrier.getPfd();
         row.addProperty("credited", true);
         row.addProperty("creditType", "preventiveFrequencyMultiplier");
         row.addProperty("multiplier", barrier.getPfd());
       }
-        if (barrier.isAvailable() && barrier.hasTraceableEvidence()
+      if (barrier.isAvailable() && barrier.hasTraceableEvidence()
           && (barrier.getType() == SafetyBarrier.BarrierType.MITIGATION
               || barrier.getType() == SafetyBarrier.BarrierType.BOTH)
           && isFiniteProbability(barrier.getEffectiveness())) {

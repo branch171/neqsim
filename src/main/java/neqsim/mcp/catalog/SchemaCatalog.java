@@ -1412,6 +1412,68 @@ public final class SchemaCatalog {
     return GSON.toJson(schema);
   }
 
+  /**
+   * Returns the JSON Schema for safety-system performance input.
+   *
+   * @return JSON Schema string
+   */
+  public static String safetySystemPerformanceInputSchema() {
+    Map<String, Object> schema = new LinkedHashMap<String, Object>();
+    schema.put("$schema", "https://json-schema.org/draft/2020-12/schema");
+    schema.put("title", "SafetySystemPerformanceInput");
+    schema.put("description",
+        "Input for run_safety_system_performance: barrier register plus STID-derived demands, detectors, and optional SIF data");
+    schema.put("type", "object");
+
+    Map<String, Object> properties = new LinkedHashMap<String, Object>();
+    properties.put("register", objectProp("Barrier register accepted by run_barrier_register"));
+    properties.put("barrierRegister",
+        objectProp("Alias for register for agent handoff compatibility"));
+    properties.put("demands", typedArraySchema(
+        "Demand/capacity cases with demandId, barrierId, category, demandValue, capacityValue, units, response time, availability, and evidenceRefs"));
+    properties.put("demandCases", typedArraySchema("Alias for demands"));
+    properties.put("measurementDevices", typedArraySchema(
+        "FireDetector or GasDetector definitions with name/tag/type/location/responseTimeSeconds"));
+    properties.put("logicSifs", typedArraySchema(
+        "Cause-and-effect voting SIFs with name, votingLogic, and detector states"));
+    properties.put("quantitativeSifs", typedArraySchema(
+        "SIL/PFD SIFs with claimedSIL, pfdAvg or components, architecture, proof-test interval, and protectedEquipment"));
+    properties.put("safetyInstrumentedFunctions",
+        typedArraySchema("Mixed logic or quantitative SIF definitions"));
+    schema.put("properties", properties);
+    schema.put("anyOf", Arrays.asList(requiredSchema("register"), requiredSchema("barrierRegister"),
+        requiredSchema("registerId", "barriers")));
+    return GSON.toJson(schema);
+  }
+
+  /**
+   * Returns the JSON Schema for safety-system performance output.
+   *
+   * @return JSON Schema string
+   */
+  public static String safetySystemPerformanceOutputSchema() {
+    Map<String, Object> schema = new LinkedHashMap<String, Object>();
+    schema.put("$schema", "https://json-schema.org/draft/2020-12/schema");
+    schema.put("title", "SafetySystemPerformanceOutput");
+    schema.put("description",
+        "Output from run_safety_system_performance with report, standards templates, and STID extraction templates");
+    schema.put("type", "object");
+
+    Map<String, Object> properties = new LinkedHashMap<String, Object>();
+    properties.put("status", enumProp("Result status", Arrays.asList("success", "error")));
+    properties.put("summary", objectProp("Overall verdict and parsed input counts"));
+    properties.put("performanceReport",
+        objectProp("SafetySystemPerformanceReport with assessments and findings"));
+    properties.put("standardsTemplates",
+        objectProp("NORSOK S-001, ISO 13702, and TR1055-style screening templates"));
+    properties.put("stidExtractionTemplates", objectProp(
+        "Extraction templates for C&E, SRS, firewater datasheets, detector layouts, and PFP schedules"));
+    properties.put("registerExport", objectProp("Normalized BarrierRegister export"));
+    schema.put("properties", properties);
+    schema.put("required", Collections.singletonList("status"));
+    return GSON.toJson(schema);
+  }
+
   // ========== Catalog Metadata ==========
 
   /**
@@ -1424,7 +1486,8 @@ public final class SchemaCatalog {
         "list_components", "run_batch", "get_property_table", "get_phase_envelope",
         "get_capabilities", "run_pvt", "run_flow_assurance", "calculate_standard", "run_pipeline",
         "run_reservoir", "run_field_economics", "run_dynamic", "run_bioprocess", "size_equipment",
-        "compare_processes", "manage_session", "visualize", "run_hazop", "run_barrier_register"));
+        "compare_processes", "manage_session", "visualize", "run_hazop", "run_barrier_register",
+        "run_safety_system_performance"));
   }
 
   /**
@@ -1481,6 +1544,9 @@ public final class SchemaCatalog {
     } else if ("run_barrier_register".equals(toolName)) {
       return "input".equals(schemaType) ? barrierRegisterInputSchema()
           : barrierRegisterOutputSchema();
+    } else if ("run_safety_system_performance".equals(toolName)) {
+      return "input".equals(schemaType) ? safetySystemPerformanceInputSchema()
+          : safetySystemPerformanceOutputSchema();
     }
     return null;
   }

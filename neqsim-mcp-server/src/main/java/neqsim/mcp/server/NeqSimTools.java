@@ -50,6 +50,7 @@ import neqsim.mcp.runners.LOPARunner;
 import neqsim.mcp.runners.ProcessComparisonRunner;
 import neqsim.mcp.runners.ReliefRunner;
 import neqsim.mcp.runners.RiskMatrixRunner;
+import neqsim.mcp.runners.SafetySystemPerformanceRunner;
 import neqsim.mcp.runners.SILRunner;
 
 /**
@@ -1657,6 +1658,31 @@ public class NeqSimTools {
       return BarrierRegisterRunner.run(barrierJson);
     } catch (Exception e) {
       return errorJson("Barrier register analysis failed: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Analyze active and passive safety-system barrier performance from STID and NeqSim evidence.
+   *
+   * @param safetySystemJson JSON with register, demands, detector data, and optional SIF data
+   * @return JSON string with safety-system performance report
+   */
+  @Tool(description = "Analyze active and passive safety-system barrier performance from STID, "
+      + "C&E, SRS, firewater, detector-layout, PFP, and optional quantitative SIL/PFD data. "
+      + "Returns a SafetySystemPerformanceReport plus NORSOK S-001, ISO 13702, and "
+      + "TR1055-style performance-standard templates.")
+  public String runSafetySystemPerformance(
+      @ToolArg(description = "JSON with 'register' (or barrierRegister), optional 'demands', "
+          + "'measurementDevices', 'logicSifs', and 'quantitativeSifs'. Use getExample with "
+          + "category 'safety' and name 'safety-system-performance' for a template.") String safetySystemJson) {
+    String blocked = IndustrialProfile.enforceAccess("runSafetySystemPerformance");
+    if (blocked != null) {
+      return blocked;
+    }
+    try {
+      return SafetySystemPerformanceRunner.run(safetySystemJson);
+    } catch (Exception e) {
+      return errorJson("Safety-system performance analysis failed: " + e.getMessage());
     }
   }
 
