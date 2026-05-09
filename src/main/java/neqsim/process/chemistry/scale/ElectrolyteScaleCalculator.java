@@ -40,8 +40,8 @@ import neqsim.process.chemistry.util.StandardsRegistry;
  * the user a rigorous EOS-consistent number while preserving the legacy code path.
  *
  * <p>
- * Standards informational: NACE TM0374 (CaSO4 stability), NORSOK M-001 (mineral scale), Plummer &
- * Busenberg (1982) "The solubilities of calcite, aragonite and vaterite in CO2-H2O".
+ * Standards informational: NACE TM0374 (CaSO4 stability), NORSOK M-001 (mineral scale), Plummer
+ * &amp; Busenberg (1982) "The solubilities of calcite, aragonite and vaterite in CO2-H2O".
  *
  * @author ESOL
  * @version 1.0

@@ -129,6 +129,7 @@ public class ProcessCandidateGenerator {
    * Adds candidates from explicit process-network operation options.
    *
    * @param spec process research specification
+   * @param operationOptions process-network operation options to convert to candidates
    * @param candidates candidate list to append to
    */
   private void addOperationOptionCandidates(ProcessResearchSpec spec,
@@ -161,6 +162,7 @@ public class ProcessCandidateGenerator {
    * Adds graph-enumerated process-network path candidates.
    *
    * @param spec process research specification
+   * @param operationOptions process-network operation options used to build the synthesis graph
    * @param candidates candidate list to append to
    */
   private void addProcessNetworkPathCandidates(ProcessResearchSpec spec,

@@ -42,7 +42,7 @@ public class Symptom implements Serializable {
     H2S_BREAKTHROUGH,
     /** Unexpected colour / appearance of fluid sample. */
     SAMPLE_APPEARANCE,
-    /** Off-spec product (BS&W, salt, RVP). */
+    /** Off-spec product (BS&amp;W, salt, RVP). */
     OFF_SPEC,
     /** Other. */
     OTHER;

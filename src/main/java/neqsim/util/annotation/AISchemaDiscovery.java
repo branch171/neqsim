@@ -60,6 +60,17 @@ public class AISchemaDiscovery implements Serializable {
 
     /**
      * Constructor.
+     *
+     * @param className class exposing the method
+     * @param methodName exposed method name
+     * @param description method description
+     * @param category method category
+     * @param example example invocation text
+     * @param priority discovery priority, where higher values sort first
+     * @param safe whether invoking the method is expected to avoid state changes
+     * @param tags discovery tags
+     * @param parameters parameter schemas
+     * @param returnType method return type
      */
     public MethodSchema(String className, String methodName, String description, String category,
         String example, int priority, boolean safe, String[] tags, List<ParameterSchema> parameters,
@@ -262,6 +273,11 @@ public class AISchemaDiscovery implements Serializable {
 
   /**
    * Create MethodSchema from annotation.
+   *
+   * @param clazz class declaring the method
+   * @param method reflected method
+   * @param annotation AI exposure annotation on the method
+   * @return generated method schema
    */
   private MethodSchema createMethodSchema(Class<?> clazz, Method method, AIExposable annotation) {
     List<ParameterSchema> params = new ArrayList<>();
@@ -286,6 +302,10 @@ public class AISchemaDiscovery implements Serializable {
 
   /**
    * Create MethodSchema from method without annotation.
+   *
+   * @param clazz class declaring the method
+   * @param method reflected method
+   * @return generated method schema
    */
   private MethodSchema createMethodSchemaFromMethod(Class<?> clazz, Method method) {
     List<ParameterSchema> params = new ArrayList<>();
@@ -303,6 +323,9 @@ public class AISchemaDiscovery implements Serializable {
 
   /**
    * Generate a basic description from method name.
+   *
+   * @param methodName reflected method name
+   * @return generated description text
    */
   private String generateDescriptionFromName(String methodName) {
     if (methodName.startsWith("get")) {
@@ -319,6 +342,9 @@ public class AISchemaDiscovery implements Serializable {
 
   /**
    * Convert camelCase to spaces.
+   *
+   * @param camel camel-case input text
+   * @return lower-case text with spaces between camel-case words
    */
   private String camelToSpaces(String camel) {
     return camel.replaceAll("([a-z])([A-Z])", "$1 $2").toLowerCase();

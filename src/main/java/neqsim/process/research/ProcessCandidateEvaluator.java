@@ -190,6 +190,7 @@ public class ProcessCandidateEvaluator {
    * @param process process system to score
    * @param candidate candidate metadata with product stream references
    * @param spec process research specification
+   * @param recordMetrics whether to record detailed metrics and warnings on the candidate
    * @return ranking score; higher is better
    */
   private double scoreProcess(ProcessSystem process, ProcessCandidate candidate,

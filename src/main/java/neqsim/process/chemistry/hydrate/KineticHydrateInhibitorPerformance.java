@@ -30,7 +30,8 @@ import neqsim.process.chemistry.util.StandardsRegistry.StandardReference;
  * </ul>
  *
  * <p>
- * Reference: Sloan & Koh, Clathrate Hydrates of Natural Gases, 3rd ed., Chapter 8 (LDHI screening).
+ * Reference: Sloan &amp; Koh, Clathrate Hydrates of Natural Gases, 3rd ed., Chapter 8 (LDHI
+ * screening).
  * </p>
  *
  * @author ESOL

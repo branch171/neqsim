@@ -755,6 +755,17 @@ public class NeqSimTools {
       + "(one of: electrolyteScale, mechanisticCorrosion, langmuirInhibitor, "
       + "packedBedScavenger) and analysis-specific parameters.") String chemistryJson) {
     String blocked = IndustrialProfile.enforceAccess("runChemistry");
+    if (blocked != null) {
+      return blocked;
+    }
+    try {
+      return ChemistryRunner.run(chemistryJson);
+    } catch (Exception e) {
+      return errorJson("Chemistry analysis failed: " + e.getMessage());
+    }
+  }
+
+  /**
    * Run a process-wide materials, degradation, and integrity review.
    *
    * @param materialsReviewJson JSON specification with optional process JSON and material register
@@ -775,9 +786,9 @@ public class NeqSimTools {
       return blocked;
     }
     try {
-      return ChemistryRunner.run(chemistryJson);
+      return withAutoValidation(MaterialsReviewRunner.run(materialsReviewJson), "general");
     } catch (Exception e) {
-      return errorJson("Chemistry analysis failed: " + e.getMessage());
+      return errorJson("Materials review failed: " + e.getMessage());
     }
   }
 
