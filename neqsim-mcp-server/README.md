@@ -372,7 +372,7 @@ Edit `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or
       "command": "java",
       "args": [
         "-jar",
-        "/path/to/neqsim-mcp-server-3.7.0-runner.jar"
+        "/path/to/neqsim-mcp-server-3.10.0-runner.jar"
       ]
     }
   }
@@ -419,7 +419,7 @@ Add to `.vscode/mcp.json`:
       "command": "java",
       "args": [
         "-jar",
-        "/path/to/neqsim-mcp-server-3.7.0-runner.jar"
+        "/path/to/neqsim-mcp-server-3.10.0-runner.jar"
       ]
     }
   }
@@ -453,7 +453,7 @@ Restart VS Code.
 Any MCP STDIO client works. Point it at one of:
 
 ```bash
-java -jar /path/to/neqsim-mcp-server-3.7.0-runner.jar          # jar
+java -jar /path/to/neqsim-mcp-server-3.10.0-runner.jar         # jar
 docker run -i --rm ghcr.io/equinor/neqsim-mcp-server:latest    # docker
 ```
 
