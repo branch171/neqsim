@@ -69,6 +69,8 @@ public final class BenchmarkTrust {
     tools.add("runFlowAssurance", buildFlowAssuranceTrust());
     tools.add("calculateStandard", buildStandardsTrust());
     tools.add("runPipeline", buildPipelineTrust());
+    tools.add("runWaterHammer", buildWaterHammerTrust());
+    tools.add("runRootCauseAnalysis", buildRootCauseTrust());
     tools.add("runMaterialsReview", buildMaterialsReviewTrust());
     tools.add("runReservoir", buildReservoirTrust());
     tools.add("runFieldEconomics", buildEconomicsTrust());
@@ -113,6 +115,12 @@ public final class BenchmarkTrust {
         break;
       case "runPipeline":
         root.add("trust", buildPipelineTrust());
+        break;
+      case "runWaterHammer":
+        root.add("trust", buildWaterHammerTrust());
+        break;
+      case "runRootCauseAnalysis":
+        root.add("trust", buildRootCauseTrust());
         break;
       case "runMaterialsReview":
         root.add("trust", buildMaterialsReviewTrust());
@@ -316,6 +324,38 @@ public final class BenchmarkTrust {
   }
 
   /**
+   * Builds trust metadata for the water-hammer screening tool.
+   *
+   * @return JSON object with trust metadata
+   */
+  private static JsonObject buildWaterHammerTrust() {
+    JsonObject trust = new JsonObject();
+    trust.addProperty("maturityLevel", "TESTED");
+    trust.addProperty("description",
+        "Water-hammer / liquid-hammer screening using a "
+            + "single-line Method of Characteristics transient model. Suitable for fast ranking "
+            + "of valve closure and pump-trip scenarios before a detailed surge study.");
+
+    JsonArray cases = new JsonArray();
+    cases.add(validationCase("Joukowsky pressure rise for instantaneous closure", "SRK",
+        "Peak pressure envelope consistent with rho*a*deltaV estimate",
+        "Classic water-hammer theory"));
+    cases.add(validationCase("Courant-limited transient stability", "MOC",
+        "Stable time step follows dx/a condition", "NeqSim JUnit test suite"));
+    trust.add("validationCases", cases);
+
+    JsonArray limitations = new JsonArray();
+    limitations.add("Equivalent single-line model; split varying-diameter routes into sections");
+    limitations.add("Valve closure curves are linear unless event schedule provides alternatives");
+    limitations.add("Support loads, pipe stress, vapor cavity collapse, and detailed pump curves "
+        + "require specialist surge software or vendor data");
+    limitations.add("Use as a screening and evidence-pack tool, not as final design approval");
+    trust.add("knownLimitations", limitations);
+
+    return trust;
+  }
+
+  /**
    * Builds trust metadata for the materials review tool.
    *
    * @return JSON object with trust metadata
@@ -344,6 +384,46 @@ public final class BenchmarkTrust {
     limitations.add("Quality depends on normalized STID/materials-register completeness");
     limitations.add("API 579/API 581 quantitative RBI is not fully implemented in this runner");
     limitations.add("Document retrieval and OCR are handled outside the Java runner");
+    trust.add("knownLimitations", limitations);
+
+    return trust;
+  }
+
+  /**
+   * Builds trust metadata for the root-cause analysis tool.
+   *
+   * @return JSON object with trust metadata
+   */
+  private static JsonObject buildRootCauseTrust() {
+    JsonObject trust = new JsonObject();
+    trust.addProperty("maturityLevel", "TESTED");
+    trust.addProperty("description", "Equipment root-cause analysis that combines OREDA-style "
+        + "priors, hypothesis-specific historian/STID evidence fingerprints, and conservative "
+        + "process-simulation perturbation checks. Suitable for operations troubleshooting and "
+        + "shift-to-shift investigation support, not for replacing discipline engineer review.");
+
+    JsonArray cases = new JsonArray();
+    cases.add(validationCase("Compressor high vibration", "SRK process model",
+        "Ranks bearing degradation, rotor imbalance, liquid ingestion, and misalignment using "
+            + "vibration/level/bearing-temperature evidence patterns",
+        "RootCauseAnalyzerTest and OREDA-style hypothesis library"));
+    cases.add(validationCase("Compressor efficiency degradation", "SRK process model",
+        "Applies compressor efficiency perturbation and compares KPI direction with historian tags",
+        "SimulationVerifier regression tests"));
+    cases.add(validationCase("Separator liquid carryover", "Process historian + STID",
+        "Uses level, demister differential pressure, feed-rate, and carryover fingerprints",
+        "Root-cause diagnosis package tests"));
+    trust.add("validationCases", cases);
+
+    JsonArray limitations = new JsonArray();
+    limitations
+        .add("Confidence scores are Bayesian-inspired rankings, not calibrated " + "probabilities");
+    limitations.add("Quality depends on historian tag mapping, data quality, and STID/design-limit "
+        + "completeness");
+    limitations.add("Simulation verification is limited to supported perturbations and reports "
+        + "neutral when unsupported");
+    limitations.add("Final operating decisions require qualified rotating-equipment, process, "
+        + "or control-system review");
     trust.add("knownLimitations", limitations);
 
     return trust;

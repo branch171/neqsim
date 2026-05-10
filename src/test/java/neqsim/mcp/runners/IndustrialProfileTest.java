@@ -41,8 +41,8 @@ class IndustrialProfileTest {
   void tierSizes_matchContract() {
     assertEquals(21, IndustrialProfile.getIndustrialCore().size(),
         "Tier 1 (TRUSTED_CORE) should have 21 tools");
-    assertEquals(22, IndustrialProfile.getEngineeringAdvanced().size(),
-        "Tier 2 (ENGINEERING_ADVANCED) should have 22 tools");
+    assertEquals(25, IndustrialProfile.getEngineeringAdvanced().size(),
+        "Tier 2 (ENGINEERING_ADVANCED) should have 25 tools");
     assertEquals(14, IndustrialProfile.getExperimentalTools().size(),
         "Tier 3 (EXPERIMENTAL) should have 14 tools");
   }
@@ -77,6 +77,9 @@ class IndustrialProfileTest {
   void getToolTier_advancedTools_returnEngineeringAdvanced() {
     assertEquals(ToolTier.ENGINEERING_ADVANCED, IndustrialProfile.getToolTier("runPVT"));
     assertEquals(ToolTier.ENGINEERING_ADVANCED, IndustrialProfile.getToolTier("runPipeline"));
+    assertEquals(ToolTier.ENGINEERING_ADVANCED, IndustrialProfile.getToolTier("runWaterHammer"));
+    assertEquals(ToolTier.ENGINEERING_ADVANCED,
+        IndustrialProfile.getToolTier("runRootCauseAnalysis"));
     assertEquals(ToolTier.ENGINEERING_ADVANCED, IndustrialProfile.getToolTier("runFlowAssurance"));
     assertEquals(ToolTier.ENGINEERING_ADVANCED,
         IndustrialProfile.getToolTier("runMaterialsReview"));
@@ -87,6 +90,8 @@ class IndustrialProfileTest {
         IndustrialProfile.getToolTier("saveSimulationState"));
     assertEquals(ToolTier.ENGINEERING_ADVANCED,
         IndustrialProfile.getToolTier("runSafetySystemPerformance"));
+    assertEquals(ToolTier.ENGINEERING_ADVANCED,
+        IndustrialProfile.getToolTier("runOperationalStudy"));
   }
 
   @Test
@@ -145,6 +150,7 @@ class IndustrialProfileTest {
     IndustrialProfile.setActiveMode(DeploymentMode.STUDY_TEAM);
     assertTrue(IndustrialProfile.isToolAllowed("runPVT"));
     assertTrue(IndustrialProfile.isToolAllowed("runPipeline"));
+    assertTrue(IndustrialProfile.isToolAllowed("runWaterHammer"));
     assertTrue(IndustrialProfile.isToolAllowed("runFlowAssurance"));
     assertTrue(IndustrialProfile.isToolAllowed("sizeEquipment"));
   }
@@ -216,6 +222,7 @@ class IndustrialProfileTest {
     assertFalse(IndustrialProfile.isToolAllowed("sizeEquipment"));
     assertFalse(IndustrialProfile.isToolAllowed("setSimulationVariable"));
     assertFalse(IndustrialProfile.isToolAllowed("saveSimulationState"));
+    assertFalse(IndustrialProfile.isToolAllowed("runOperationalStudy"));
   }
 
   @Test
@@ -321,6 +328,7 @@ class IndustrialProfileTest {
     assertTrue(IndustrialProfile.requiresApproval("manageSession"));
     assertTrue(IndustrialProfile.requiresApproval("setSimulationVariable"));
     assertTrue(IndustrialProfile.requiresApproval("saveSimulationState"));
+    assertTrue(IndustrialProfile.requiresApproval("runOperationalStudy"));
   }
 
   @Test
@@ -392,7 +400,7 @@ class IndustrialProfileTest {
     assertTrue(root.has("tier3_experimental"), "Must include tier3_experimental");
 
     assertEquals(21, root.getAsJsonArray("tier1_trustedCore").size());
-    assertEquals(22, root.getAsJsonArray("tier2_engineeringAdvanced").size());
+    assertEquals(25, root.getAsJsonArray("tier2_engineeringAdvanced").size());
     assertEquals(14, root.getAsJsonArray("tier3_experimental").size());
   }
 

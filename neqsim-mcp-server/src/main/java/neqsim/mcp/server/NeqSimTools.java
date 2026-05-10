@@ -31,6 +31,7 @@ import neqsim.mcp.runners.PhaseEnvelopeRunner;
 import neqsim.mcp.runners.PluginRegistry;
 import neqsim.mcp.runners.ProgressTracker;
 import neqsim.mcp.runners.PropertyTableRunner;
+import neqsim.mcp.runners.OperationalStudyRunner;
 import neqsim.mcp.runners.ReportRunner;
 import neqsim.mcp.runners.SecurityRunner;
 import neqsim.mcp.runners.SessionRunner;
@@ -40,6 +41,7 @@ import neqsim.mcp.runners.TaskSolverRunner;
 import neqsim.mcp.runners.TaskWorkflowBridge;
 import neqsim.mcp.runners.ValidationProfileRunner;
 import neqsim.mcp.runners.VisualizationRunner;
+import neqsim.mcp.runners.WaterHammerRunner;
 import neqsim.mcp.runners.BenchmarkTrust;
 import neqsim.mcp.runners.CompositionRunner;
 import neqsim.mcp.runners.DataCatalogRunner;
@@ -49,9 +51,12 @@ import neqsim.mcp.runners.HAZOPStudyRunner;
 import neqsim.mcp.runners.IndustrialProfile;
 import neqsim.mcp.runners.LOPARunner;
 import neqsim.mcp.runners.MaterialsReviewRunner;
+import neqsim.mcp.runners.NorsokS001Clause10ReviewRunner;
+import neqsim.mcp.runners.OpenDrainReviewRunner;
 import neqsim.mcp.runners.ProcessComparisonRunner;
 import neqsim.mcp.runners.ReliefRunner;
 import neqsim.mcp.runners.RiskMatrixRunner;
+import neqsim.mcp.runners.RootCauseRunner;
 import neqsim.mcp.runners.SafetySystemPerformanceRunner;
 import neqsim.mcp.runners.SILRunner;
 
@@ -439,6 +444,41 @@ public class NeqSimTools {
       return errorJson("Failed to get learning report: " + e.getMessage());
     }
   }
+
+  /**
+   * Run P&amp;ID-derived operational tag, scenario, and controller-response studies.
+   *
+   * @param operationalJson JSON specification with action and study inputs
+   * @return JSON string with operational study results
+   */
+  @Tool(description = "Run plant-agnostic operational studies from P&ID semantics, plant-data "
+      + "tag bindings, NeqSim automation addresses, valve actions, and controller time series. "
+      + "Actions: getSchema, validateTagMap, applyFieldData, runScenario, "
+      + "runEvidencePackage, evaluateControllerResponse, analyzePipeSections, and "
+      + "evaluateOperatingEnvelope. Use this for questions like what happens if a valve closes, "
+      + "how to bind private historian tags to logical model variables, whether a level/pressure "
+      + "controller response is stable, or which operating margins are closest to trip. This "
+      + "operates on a local simulation copy only and does not write to plant systems.")
+  public String runOperationalStudy(
+      @ToolArg(description = "JSON with 'action'. For validateTagMap/applyFieldData/runScenario: "
+          + "include 'processJson' plus optional 'tagBindings' and 'fieldData'. Scenario actions "
+          + "support SET_VARIABLE, SET_VALVE_OPENING, APPLY_FIELD_INPUTS, RUN_STEADY_STATE, and "
+          + "RUN_TRANSIENT. For runEvidencePackage, include optional scenarios, evidenceReferences, "
+          + "assumptions, and benchmarkToleranceFraction. For controller response: include setPoint, "
+          + "timeSeconds, processValue, controllerOutput, outputMin, outputMax, and "
+          + "settlingTolerance. For evaluateOperatingEnvelope, include optional designCapacities, "
+          + "tagBindings, fieldData, marginHistory, and predictionHorizonSeconds. Use "
+          + "action=getSchema for the full input guide.") String operationalJson) {
+    String blocked = IndustrialProfile.enforceAccess("runOperationalStudy");
+    if (blocked != null) {
+      return blocked;
+    }
+    try {
+      return OperationalStudyRunner.run(operationalJson);
+    } catch (Exception e) {
+      return errorJson("Operational study failed: " + e.getMessage());
+    }
+  }
   // ═══════════════════════════════════════════════════════════════════════════
   // Quick engineering calculation tools (no process flowsheet required)
   // ═══════════════════════════════════════════════════════════════════════════
@@ -792,6 +832,65 @@ public class NeqSimTools {
     }
   }
 
+  /**
+   * Run a NORSOK S-001 open-drain review from normalized STID and optional tagreader evidence.
+   *
+   * @param openDrainReviewJson JSON specification with open-drain areas or normalized STID data
+   * @return JSON with open-drain review findings and provenance
+   */
+  @Tool(description = "Run an open-drain review against NORSOK S-001 Clause 9. "
+      + "Consumes normalized STID/P&ID evidence such as openDrainAreas, drainAreas, "
+      + "drainSystems, helideckDrains, temporaryStorageAreas, or stidData. Optional "
+      + "tagreader/historian evidence can document observed sump levels, backpressure, "
+      + "backflow events, pump status, and valve status, but the Java tool does not connect "
+      + "directly to STID or tagreader.")
+  public String runOpenDrainReview(@ToolArg(description = "JSON with 'items', 'openDrainAreas', "
+      + "'drainAreas', or 'stidData'. Key fields include areaId, areaType, drainSystemType, "
+      + "standards, drainageCapacityKgPerS, fireWaterCapacityKgPerS, liquidLeakRateKgPerS, "
+      + "backflowPrevented, closedOpenDrainInteractionPrevented, hazardous/non-hazardous "
+      + "segregation, seal/vent evidence, and optional tagreader evidence.") String openDrainReviewJson) {
+    String blocked = IndustrialProfile.enforceAccess("runOpenDrainReview");
+    if (blocked != null) {
+      return blocked;
+    }
+    try {
+      return withAutoValidation(OpenDrainReviewRunner.run(openDrainReviewJson), "general");
+    } catch (Exception e) {
+      return errorJson("Open-drain review failed: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Run a NORSOK S-001 Clause 10 process safety system review.
+   *
+   * @param clause10ReviewJson JSON specification with normalized C&amp;E, SRS, PSV, STID/P&amp;ID,
+   *        instrument, and tagreader evidence
+   * @return JSON with Clause 10 review findings and provenance
+   */
+  @Tool(description = "Run a NORSOK S-001 Clause 10 process safety system review. "
+      + "Consumes normalized C&E, SRS, PSV list, STID/P&ID, instrument-data, and tagreader "
+      + "evidence for PSD valves, PSVs, alarms/actions, response time, logic solver, "
+      + "instrumented secondary pressure protection, utilities, PSD principles, and survivability. "
+      + "Optional safetySystemPerformanceInput, operationalStudyInput, and dynamicSimulationInput "
+      + "are embedded as calculated and transient simulation evidence.")
+  public String runNorsokS001Clause10Review(
+      @ToolArg(description = "JSON with 'items', 'processSafetyFunctions', 'stidData', or "
+          + "'tagreaderData'. Key fields include functionId, functionType, equipmentTag, "
+          + "sourceReferences, design/response/logic/utility/survivability booleans, "
+          + "PSV capacity fields, secondary pressure protection pressures/frequencies, and "
+          + "instrument data such as bypassActive, overrideActive, proofTestOverdue, or "
+          + "tripDemandFailures.") String clause10ReviewJson) {
+    String blocked = IndustrialProfile.enforceAccess("runNorsokS001Clause10Review");
+    if (blocked != null) {
+      return blocked;
+    }
+    try {
+      return withAutoValidation(NorsokS001Clause10ReviewRunner.run(clause10ReviewJson), "general");
+    } catch (Exception e) {
+      return errorJson("NORSOK S-001 Clause 10 review failed: " + e.getMessage());
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Gas/oil quality standards tools
   // ═══════════════════════════════════════════════════════════════════════════
@@ -849,6 +948,35 @@ public class NeqSimTools {
       return withAutoValidation(PipelineRunner.run(pipelineJson), "pipeline");
     } catch (Exception e) {
       return errorJson("Pipeline simulation failed: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Run a water-hammer or liquid-hammer transient screening study.
+   *
+   * @param waterHammerJson JSON specification with fluid, pipe or STID route, tag data, and events
+   * @return JSON with surge metrics, pressure envelopes, time series, warnings, and evidence
+   */
+  @Tool(description = "Run a water-hammer / liquid-hammer screening study for fast valve closure, "
+      + "pump trip, or check-valve slam scenarios. Accepts NeqSim fluid composition, pipe geometry, "
+      + "STID/E3D route segments, tagreader field data, design pressure, and valve event schedule. "
+      + "Returns wave speed, Joukowsky estimate, pressure envelopes, peak/minimum pressure, "
+      + "design-pressure margin, sampled time series, source references, and screening limitations.")
+  public String runWaterHammer(
+      @ToolArg(description = "JSON specification with: 'components' or 'composition', 'model' "
+          + "(SRK/PR), 'temperature_C', 'pressure_bara', 'flowRate' ({value, unit}), "
+          + "'pipe' ({length_m, diameter_m, wallThickness_m, roughness_m, elevation_m}), "
+          + "optional 'stidRoute' ({segments:[...]}), 'fieldData' tagreader overrides, "
+          + "'eventSchedule' valve events, 'simulationTime_s', 'timeStep_s', and "
+          + "'designPressure_bara'.") String waterHammerJson) {
+    String blocked = IndustrialProfile.enforceAccess("runWaterHammer");
+    if (blocked != null) {
+      return blocked;
+    }
+    try {
+      return withAutoValidation(WaterHammerRunner.run(waterHammerJson), "pipeline");
+    } catch (Exception e) {
+      return errorJson("Water-hammer study failed: " + e.getMessage());
     }
   }
 
@@ -1738,6 +1866,41 @@ public class NeqSimTools {
       return SafetySystemPerformanceRunner.run(safetySystemJson);
     } catch (Exception e) {
       return errorJson("Safety-system performance analysis failed: " + e.getMessage());
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Root cause analysis tools
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Run root cause analysis on process equipment using Bayesian-inspired diagnosis.
+   *
+   * @param rcaJson JSON with process definition, equipment name, symptom, and optional evidence
+   * @return JSON with ranked failure hypotheses, evidence, and recommended actions
+   */
+  @Tool(description = "Run root cause analysis on process equipment integrating OREDA failure "
+      + "data, plant historian time-series, STID design conditions, and NeqSim process "
+      + "simulation. Returns ranked failure hypotheses with Bayesian confidence scoring. "
+      + "Supports compressors, pumps, separators, heat exchangers, and valves.")
+  public String runRootCauseAnalysis(
+      @ToolArg(description = "JSON with: 'processJson' (standard process definition), "
+          + "'equipmentName' (name of equipment to diagnose), "
+          + "'symptom' (TRIP, HIGH_VIBRATION, SEAL_FAILURE, HIGH_TEMPERATURE, "
+          + "LOW_EFFICIENCY, PRESSURE_DEVIATION, FLOW_DEVIATION, HIGH_POWER, "
+          + "SURGE_EVENT, FOULING, ABNORMAL_NOISE, LIQUID_CARRYOVER), "
+          + "optional 'historianCsv' (CSV with timestamp,param1,param2,...), "
+          + "optional 'designLimits' ({param: [min, max]}), "
+          + "optional 'stidData' ({param: value}), "
+          + "optional 'simulationEnabled' (true/false, default true).") String rcaJson) {
+    String blocked = IndustrialProfile.enforceAccess("runRootCauseAnalysis");
+    if (blocked != null) {
+      return blocked;
+    }
+    try {
+      return RootCauseRunner.run(rcaJson);
+    } catch (Exception e) {
+      return errorJson("Root cause analysis failed: " + e.getMessage());
     }
   }
 
