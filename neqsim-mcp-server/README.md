@@ -228,8 +228,8 @@ Pick **jar** or **Docker** — both are first-class paths.
 **1. Download the jar + checksum**
 
 ```bash
-# Replace VERSION with the latest release (e.g. 3.9.1)
-VERSION=3.9.1
+# Replace VERSION with the latest release (e.g. 3.10.0)
+VERSION=3.10.0
 curl -fLO "https://github.com/equinor/neqsim/releases/download/v${VERSION}/neqsim-mcp-server-${VERSION}-runner.jar"
 curl -fLO "https://github.com/equinor/neqsim/releases/download/v${VERSION}/neqsim-mcp-server-${VERSION}-runner.jar.sha256"
 ```
@@ -660,7 +660,7 @@ If you want to build from source (for development or to use the latest unrelease
 |---|---|---|
 | JDK | 17+ | Quarkus requires Java 17. NeqSim core still compiles with Java 8. |
 | Maven | 3.9+ | Or use the Maven wrapper (`mvnw` / `mvnw.cmd`) from the parent project |
-| NeqSim core | 3.9.1 | Must be installed to local Maven repo first (see below) |
+| NeqSim core | 3.10.0 | Must be installed to local Maven repo first (see below) |
 
 ### Build steps
 
@@ -919,7 +919,7 @@ python test_mcp_server.py
 
 ## Troubleshooting
 
-### Build Fails — "Could not find artifact com.equinor.neqsim:neqsim:3.9.1"
+### Build Fails — "Could not find artifact com.equinor.neqsim:neqsim:3.10.0"
 
 The neqsim core library must be installed first:
 

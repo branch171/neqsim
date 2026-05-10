@@ -131,3 +131,6 @@ neqsim_profile.jfr
 # paperlab copilot-bridge LLM file exchange
 .llm_bridge/
 
+# Local agent data (not tracked, as it may contain sensitive information or be large)
+.agents/
+
