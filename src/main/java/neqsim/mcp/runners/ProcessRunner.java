@@ -265,6 +265,7 @@ public class ProcessRunner {
         result.addProperty("report", reportJson);
       }
     }
+    result.addProperty("convergenceSummary", buildResult.model.getConvergenceSummary());
 
     ResultProvenance provenance = ResultProvenance.forProcess(extractModel(normalizedJson),
         extractMixingRule(normalizedJson), extractEquipmentCount(normalizedJson));
@@ -347,6 +348,8 @@ public class ProcessRunner {
         return result;
       }
 
+      applyProcessModelExecutionSettings(root, result.model);
+
       for (Map.Entry<String, com.google.gson.JsonElement> entry : areas.entrySet()) {
         String areaName = entry.getKey();
         if (!entry.getValue().isJsonObject()) {
@@ -372,12 +375,41 @@ public class ProcessRunner {
           }
         }
       }
+      if (result.errors.isEmpty() && root.has("interAreaLinks")
+          && root.get("interAreaLinks").isJsonArray()) {
+        result.warnings
+            .addAll(result.model.applyInterAreaLinks(root.getAsJsonArray("interAreaLinks")));
+      }
     } catch (Exception e) {
       result.errors.add(new SimulationResult.ErrorDetail("PROCESS_MODEL_PARSE_ERROR",
           "Failed to parse ProcessModel JSON: " + e.getMessage(), null,
           "Ensure the JSON has a top-level 'areas' object with valid area definitions"));
     }
     return result;
+  }
+
+  /**
+   * Applies top-level execution controls from ProcessModel JSON.
+   *
+   * @param root root JSON object containing optional execution settings
+   * @param model process model to configure before running
+   */
+  private static void applyProcessModelExecutionSettings(JsonObject root, ProcessModel model) {
+    if (root.has("runStep")) {
+      model.setRunStep(root.get("runStep").getAsBoolean());
+    }
+    if (root.has("maxIterations")) {
+      model.setMaxIterations(root.get("maxIterations").getAsInt());
+    }
+    if (root.has("flowTolerance")) {
+      model.setFlowTolerance(root.get("flowTolerance").getAsDouble());
+    }
+    if (root.has("temperatureTolerance")) {
+      model.setTemperatureTolerance(root.get("temperatureTolerance").getAsDouble());
+    }
+    if (root.has("pressureTolerance")) {
+      model.setPressureTolerance(root.get("pressureTolerance").getAsDouble());
+    }
   }
 
   /**

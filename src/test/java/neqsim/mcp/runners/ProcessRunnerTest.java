@@ -111,6 +111,24 @@ class ProcessRunnerTest {
     assertEquals(2, root.get("areaCount").getAsInt());
     assertTrue(root.has("areas"));
     assertTrue(root.has("report"));
+    assertTrue(root.has("convergenceSummary"));
+    assertTrue(root.get("convergenceSummary").getAsString().contains("ProcessModel"));
+  }
+
+  @Test
+  void testRun_processModelHonorsExecutionSettings() {
+    String json = processModelJson().replace("{\"areas\":",
+        "{\"runStep\": true,"
+            + "\"maxIterations\": 7,\"flowTolerance\": 0.02,\"temperatureTolerance\": 0.03,"
+            + "\"pressureTolerance\": 0.04,\"areas\":");
+
+    String result = ProcessRunner.run(json);
+    JsonObject root = JsonParser.parseString(result).getAsJsonObject();
+
+    assertEquals("success", root.get("status").getAsString());
+    assertTrue(root.getAsJsonObject("provenance").get("converged").getAsBoolean());
+    assertTrue(root.get("convergenceSummary").getAsString().contains("Iterations: 1 / 7"));
+    assertTrue(root.get("convergenceSummary").getAsString().contains("Flow rate:    0.00e+00"));
   }
 
   @Test
@@ -149,7 +167,10 @@ class ProcessRunnerTest {
             + "\"properties\": {\"flowRate\": [10000.0, \"kg/hr\"]}},"
             + "{\"type\": \"Compressor\", \"name\": \"Comp\", \"inlet\": \"compFeed\","
             + "\"properties\": {\"outletPressure\": [80.0, \"bara\"]}}" + "]}";
-    return "{\"areas\": {\"separation\": " + separation + ", \"compression\": " + compression
-        + "}}";
+    String interAreaLinks = "\"interAreaLinks\": [{\"sourceArea\": \"separation\","
+        + "\"source\": \"Sep.gasOut\", \"targetArea\": \"compression\","
+        + "\"targetUnit\": \"Comp\", \"targetInletIndex\": 0}]";
+    return "{\"areas\": {\"separation\": " + separation + ", \"compression\": " + compression + "},"
+        + interAreaLinks + "}";
   }
 }
