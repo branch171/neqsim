@@ -313,6 +313,128 @@ public final class ExampleCatalog {
         + "    \"numberOfIncrements\": 20\n" + "  }\n" + "}";
   }
 
+  /**
+   * Returns a water-hammer valve-closure example using route and tagreader-style fields.
+   *
+   * @return JSON string for WaterHammerRunner.run()
+   */
+  public static String waterHammerValveClosure() {
+    return "{\n" + "  \"studyName\": \"Synthetic ESD valve closure screening\",\n"
+        + "  \"model\": \"SRK\",\n" + "  \"temperature_C\": 20.0,\n"
+        + "  \"pressure_bara\": 45.0,\n" + "  \"components\": {\"water\": 1.0},\n"
+        + "  \"flowRate\": {\"value\": 120000.0, \"unit\": \"kg/hr\"},\n"
+        + "  \"designPressure_bara\": 95.0,\n" + "  \"pipe\": {\n" + "    \"length_m\": 1200.0,\n"
+        + "    \"diameter_m\": 0.2032,\n" + "    \"wallThickness_m\": 0.0127,\n"
+        + "    \"roughness_m\": 4.6e-5,\n" + "    \"elevation_m\": 8.0,\n"
+        + "    \"numberOfNodes\": 80\n" + "  },\n" + "  \"fieldData\": {\n"
+        + "    \"inletPressure_bara\": 46.0,\n" + "    \"inletTemperature_C\": 19.0,\n"
+        + "    \"flowRate_kg_hr\": 118000.0,\n" + "    \"valveOpening\": 1.0\n" + "  },\n"
+        + "  \"eventSchedule\": [\n" + "    {\"type\": \"VALVE_CLOSURE\", \"startTime_s\": 0.10, "
+        + "\"duration_s\": 0.15, \"startOpening\": 1.0, \"endOpening\": 0.0}\n" + "  ],\n"
+        + "  \"simulationTime_s\": 4.0,\n"
+        + "  \"sourceReferences\": [\"synthetic STID line-list row\", "
+        + "\"synthetic tagreader event window\"]\n" + "}";
+  }
+
+  // ========== Root-Cause Analysis Examples ==========
+
+  /**
+   * Returns a compressor high-vibration root-cause analysis example.
+   *
+   * @return JSON string for RootCauseRunner.run()
+   */
+  public static String rootCauseCompressorHighVibration() {
+    String processJson = processCompressionWithCooling().replace("\\", "\\\\").replace("\"", "\\\"")
+        .replace("\n", "\\n");
+    return "{\n" + "  \"equipmentName\": \"1st Stage\",\n" + "  \"symptom\": \"HIGH_VIBRATION\",\n"
+        + "  \"processJson\": \"" + processJson + "\",\n" + "  \"simulationEnabled\": true,\n"
+        + "  \"historianCsv\": \"time,vibration,bearingTemperature,lubeOilPressure,"
+        + "scrubberLevel\\n0,2.1,68.0,4.6,42.0\\n10,3.0,71.0,4.2,55.0\\n"
+        + "20,5.6,79.0,3.4,82.0\",\n" + "  \"designLimits\": {\n"
+        + "    \"vibration\": [0.0, 4.5],\n" + "    \"bearingTemperature\": [0.0, 90.0],\n"
+        + "    \"lubeOilPressure\": [3.5, 8.0],\n" + "    \"scrubberLevel\": [15.0, 75.0]\n"
+        + "  },\n" + "  \"stidData\": {\n" + "    \"vibrationDesignLimit\": \"4.5\",\n"
+        + "    \"normalBearingTemperature\": \"70.0\",\n"
+        + "    \"sourceReference\": \"synthetic compressor datasheet and tagreader trend\"\n"
+        + "  }\n" + "}";
+  }
+
+  /**
+   * Returns a separator liquid-carryover root-cause analysis example with rich tagreader historian
+   * data showing the complete integration between process simulation, STID design data, and
+   * historian time-series from plant data systems (e.g. OSIsoft PI / Aspen IP.21).
+   *
+   * @return JSON string for RootCauseRunner.run()
+   */
+  public static String rootCauseSeparatorLiquidCarryover() {
+    String processJson = processSimpleSeparation().replace("\\", "\\\\").replace("\"", "\\\"")
+        .replace("\n", "\\n");
+    return "{\n" + "  \"equipmentName\": \"HP Sep\",\n"
+        + "  \"symptom\": \"LIQUID_CARRYOVER\",\n" + "  \"processJson\": \"" + processJson
+        + "\",\n" + "  \"simulationEnabled\": true,\n"
+        + "  \"historianCsv\": \"time,demisterDp,liquidLevel,gasOutFlow,"
+        + "feedFlow,inletTemperature\\n"
+        + "0,0.8,52.0,9200.0,10000.0,25.0\\n"
+        + "3600,1.2,58.0,9100.0,10500.0,25.5\\n"
+        + "7200,1.8,63.0,8800.0,11200.0,26.0\\n"
+        + "10800,2.5,68.0,8500.0,12000.0,26.5\\n"
+        + "14400,3.2,72.0,8200.0,12500.0,27.0\",\n"
+        + "  \"designLimits\": {\n"
+        + "    \"demisterDp\": [0.0, 2.5],\n"
+        + "    \"liquidLevel\": [20.0, 70.0],\n"
+        + "    \"gasOutFlow\": [0.0, 12000.0],\n"
+        + "    \"feedFlow\": [0.0, 11000.0]\n" + "  },\n"
+        + "  \"stidData\": {\n"
+        + "    \"designFeedRate_kg_hr\": \"10000\",\n"
+        + "    \"designLiquidLevel_pct\": \"50\",\n"
+        + "    \"demisterType\": \"wire_mesh\",\n"
+        + "    \"demisterMaxDp_mbar\": \"2.5\",\n"
+        + "    \"lastInspectionDate\": \"2024-03-15\",\n"
+        + "    \"tagreaderSource\": \"PI Web API tag mapping: "
+        + "LT-2001.PV, PDT-2001.PV, FT-2002.PV, FT-2001.PV, TT-2001.PV\",\n"
+        + "    \"sourceReference\": \"STID datasheet DS-V-2001 rev.C "
+        + "and tagreader trend 01.06.2025-01.06.2025\"\n" + "  }\n" + "}";
+  }
+
+  /**
+   * Returns a heat exchanger fouling root-cause analysis example integrating process simulation,
+   * tagreader historian trend, design limits from STID datasheet, and equipment design data from
+   * vendor technical documents.
+   *
+   * @return JSON string for RootCauseRunner.run()
+   */
+  public static String rootCauseHeatExchangerFouling() {
+    return "{\n" + "  \"equipmentName\": \"Intercooler\",\n" + "  \"symptom\": \"FOULING\",\n"
+        + "  \"processJson\": \""
+        + processCompressionWithCooling().replace("\\", "\\\\").replace("\"", "\\\"")
+            .replace("\n", "\\n")
+        + "\",\n" + "  \"simulationEnabled\": true,\n"
+        + "  \"historianCsv\": \"time,outletTemp,inletTemp,coolantFlow,"
+        + "shellDp,tubeOutTemp\\n"
+        + "0,35.0,120.0,80000.0,0.35,32.0\\n"
+        + "86400,37.0,120.5,80000.0,0.40,33.0\\n"
+        + "172800,39.5,121.0,79500.0,0.48,34.5\\n"
+        + "259200,42.0,120.0,79000.0,0.55,36.0\\n"
+        + "345600,45.0,120.5,78500.0,0.63,38.0\\n"
+        + "432000,48.5,121.0,78000.0,0.72,40.0\",\n"
+        + "  \"designLimits\": {\n"
+        + "    \"outletTemp\": [0.0, 40.0],\n"
+        + "    \"shellDp\": [0.0, 0.5],\n"
+        + "    \"coolantFlow\": [70000.0, 90000.0]\n" + "  },\n"
+        + "  \"stidData\": {\n"
+        + "    \"designDuty_kW\": \"2500\",\n"
+        + "    \"designUA_W_K\": \"45000\",\n"
+        + "    \"designOutletTemp_C\": \"35\",\n"
+        + "    \"hxType\": \"shell-and-tube\",\n"
+        + "    \"temaClass\": \"R\",\n"
+        + "    \"lastCleaningDate\": \"2024-01-20\",\n"
+        + "    \"designFoulingResistance_m2K_W\": \"0.00035\",\n"
+        + "    \"tagreaderSource\": \"Aspen IP.21 tag mapping: "
+        + "TT-3501.PV, TT-3502.PV, FT-3501.PV, PDT-3501.PV, TT-3503.PV\",\n"
+        + "    \"sourceReference\": \"STID datasheet DS-E-3501 rev.B "
+        + "and vendor technical document VD-E-3501\"\n" + "  }\n" + "}";
+  }
+
   // ========== Materials Review Examples ==========
 
   /**
@@ -343,6 +465,160 @@ public final class ExampleCatalog {
         + "        \"insulated\": true,\n" + "        \"insulation_type\": \"mineral wool\",\n"
         + "        \"coating_age_years\": 14.0,\n" + "        \"marine_environment\": true\n"
         + "      }\n" + "    }\n" + "  ]\n" + "}";
+  }
+
+        // ========== Open Drain Review Examples ==========
+
+        /**
+         * Returns an open-drain review example based on normalized STID and tagreader evidence.
+         *
+         * @return JSON string for OpenDrainReviewRunner.run()
+         */
+        public static String openDrainReviewNorsokS001Stid() {
+          return "{\n" + "  \"projectName\": \"Synthetic open drain review\",\n"
+          + "  \"defaultLiquidLeakRateKgPerS\": 5.0,\n" + "  \"stidData\": {\n"
+          + "    \"openDrainAreas\": [\n" + "      {\n"
+          + "        \"areaId\": \"OD-PROCESS-001\",\n"
+          + "        \"areaType\": \"process hazardous area\",\n"
+          + "        \"drainSystemType\": \"hazardous open drain\",\n"
+          + "        \"sourceReferences\": [\"synthetic STID OD-001 rev.A\"],\n"
+          + "        \"standards\": [\"NORSOK S-001\", \"NORSOK P-002\", \"ISO 13702\"],\n"
+          + "        \"sourceHasFlammableOrHazardousLiquid\": true,\n"
+          + "        \"hasOpenDrainMeasures\": true,\n"
+          + "        \"drainageCapacityKgPerS\": 14.0,\n"
+          + "        \"fireWaterCapacityKgPerS\": 8.0,\n"
+          + "        \"liquidLeakRateKgPerS\": 5.0,\n"
+          + "        \"backflowPrevented\": true,\n"
+          + "        \"closedOpenDrainInteractionPrevented\": true,\n"
+          + "        \"hazardousNonHazardousPhysicallySeparated\": true,\n"
+          + "        \"sealDesignedForMaxBackpressure\": true,\n"
+          + "        \"ventTerminatedSafe\": true,\n"
+          + "        \"openDrainDependsOnUtility\": false,\n"
+          + "        \"tagreaderSource\": \"PI export: LS-OD-001.PV, PT-OD-001.PV\",\n"
+          + "        \"sumpHighLevelEvents\": 0.0,\n"
+          + "        \"observedBackflowEvents\": 0.0\n" + "      }\n" + "    ],\n"
+          + "    \"helideckDrains\": [\n" + "      {\n"
+          + "        \"areaId\": \"OD-HELIDECK\",\n"
+          + "        \"areaType\": \"helideck\",\n"
+          + "        \"dedicatedPipeDrainage\": true,\n"
+          + "        \"sourceHasFlammableOrHazardousLiquid\": true,\n"
+          + "        \"hasOpenDrainMeasures\": true,\n"
+          + "        \"drainageCapacityKgPerS\": 6.0,\n"
+          + "        \"fireWaterCapacityKgPerS\": 1.0,\n"
+          + "        \"liquidLeakRateKgPerS\": 0.5,\n"
+          + "        \"backflowPrevented\": true,\n"
+          + "        \"closedOpenDrainInteractionPrevented\": true,\n"
+          + "        \"hazardousNonHazardousPhysicallySeparated\": true,\n"
+          + "        \"sealDesignedForMaxBackpressure\": true,\n"
+          + "        \"ventTerminatedSafe\": true\n" + "      }\n" + "    ]\n" + "  }\n"
+          + "}";
+        }
+
+  // ========== NORSOK S-001 Clause 10 Review Examples ==========
+
+  /**
+   * Returns a process safety system review example based on normalized technical documentation and
+   * instrument evidence.
+   *
+   * @return JSON string for NorsokS001Clause10ReviewRunner.run()
+   */
+  public static String norsokS001Clause10ProcessSafetySystem() {
+    return "{\n"
+        + "  \"projectName\": \"Synthetic NORSOK S-001 Clause 10 review\",\n"
+        + "  \"stidData\": {\n"
+        + "    \"processSafetyFunctions\": [\n"
+        + commonClause10Item("PSD-1001", "PSD", "V-100", true)
+        + ",\n"
+        + commonClause10Item("PSV-1001", "PSV", "V-100", false)
+        + ",\n"
+        + commonClause10Item("PAHH-1001", "ALARM", "V-100", false)
+        + ",\n"
+        + commonClause10Item("SIF-1001", "SECONDARY_PRESSURE_PROTECTION", "V-100", true)
+        + "\n    ]\n"
+        + "  }\n"
+        + "}";
+  }
+
+  /**
+   * Builds a common Clause 10 example item.
+   *
+   * @param functionId function identifier
+   * @param functionType function type
+   * @param equipmentTag protected equipment tag
+   * @param logicEvidence true when logic solver evidence should be included
+   * @return JSON object text
+   */
+  private static String commonClause10Item(String functionId, String functionType,
+      String equipmentTag, boolean logicEvidence) {
+    StringBuilder json = new StringBuilder();
+    json.append("      {\n");
+    json.append("        \"functionId\": \"").append(functionId).append("\",\n");
+    json.append("        \"functionType\": \"").append(functionType).append("\",\n");
+    json.append("        \"equipmentTag\": \"").append(equipmentTag).append("\",\n");
+    json.append("        \"sourceReferences\": [\"synthetic C&E rev.A\", \"synthetic SRS rev.B\"],\n");
+    json.append("        \"hazidHazopLopaCompleted\": true,\n");
+    json.append("        \"srsDefinesRequiredFunctions\": true,\n");
+    json.append("        \"sisEsdFgsDesignImplemented\": true,\n");
+    json.append("        \"verificationTestingOperationConfirmed\": true,\n");
+    json.append("        \"processSafetyRoleDefined\": true,\n");
+    json.append("        \"interfacesDefined\": true,\n");
+    json.append("        \"protectionLayersDocumented\": true,\n");
+    json.append("        \"designBasisDocumented\": true,\n");
+    json.append("        \"processSafetyPrinciplesDocumented\": true,\n");
+    json.append("        \"bypassManagementDocumented\": true,\n");
+    json.append("        \"requiredUtilitiesIdentified\": true,\n");
+    json.append("        \"utilityDependent\": true,\n");
+    json.append("        \"failSafeOnUtilityLoss\": true,\n");
+    json.append("        \"survivabilityRequirementDocumented\": true,\n");
+    json.append("        \"requiredSurvivabilityTimeMin\": 30.0,\n");
+    json.append("        \"survivabilityTimeMin\": 60.0,\n");
+    json.append("        \"tagreaderSource\": \"synthetic instrument status export\",\n");
+    json.append("        \"bypassActive\": false,\n");
+    json.append("        \"overrideActive\": false,\n");
+    json.append("        \"proofTestOverdue\": false,\n");
+    json.append("        \"tripDemandFailures\": 0.0");
+    if ("PSD".equals(functionType)) {
+      json.append(",\n        \"shutdownActionDefined\": true");
+      json.append(",\n        \"psdValveFailsSafe\": true");
+      json.append(",\n        \"psdValveIsolationAdequate\": true");
+      json.append(",\n        \"requiredResponseTimeSeconds\": 30.0");
+      json.append(",\n        \"actualResponseTimeSeconds\": 18.0");
+      json.append(",\n        \"psdIndependentFromControl\": true");
+      json.append(",\n        \"manualShutdownAvailable\": true");
+    }
+    if ("PSV".equals(functionType)) {
+      json.append(",\n        \"psvSizingBasisDocumented\": true");
+      json.append(",\n        \"reliefScenarioDocumented\": true");
+      json.append(",\n        \"protectedEquipmentDocumented\": true");
+      json.append(",\n        \"requiredReliefLoadKgPerS\": 10.0");
+      json.append(",\n        \"psvCapacityKgPerS\": 14.0");
+    }
+    if ("ALARM".equals(functionType)) {
+      json.append(",\n        \"alarmActionDefined\": true");
+      json.append(",\n        \"alarmSetpointDocumented\": true");
+      json.append(",\n        \"operatorResponseTimeSeconds\": 120.0");
+      json.append(",\n        \"availableOperatorResponseTimeSeconds\": 300.0");
+      json.append(",\n        \"requiredResponseTimeSeconds\": 300.0");
+      json.append(",\n        \"actualResponseTimeSeconds\": 120.0");
+    }
+    if (logicEvidence) {
+      json.append(",\n        \"logicSolverCertified\": true");
+      json.append(",\n        \"logicSolverIndependent\": true");
+      json.append(",\n        \"causeAndEffectTested\": true");
+    }
+    if ("SECONDARY_PRESSURE_PROTECTION".equals(functionType)) {
+      json.append(",\n        \"maximumEventPressureBara\": 120.0");
+      json.append(",\n        \"designPressureBara\": 100.0");
+      json.append(",\n        \"testPressureBara\": 150.0");
+      json.append(",\n        \"demandFrequencyPerYear\": 1.0e-4");
+      json.append(",\n        \"reliefLeakageAssessed\": true");
+      json.append(",\n        \"reliefLeakageToSafeLocation\": true");
+      json.append(",\n        \"proofTestIntervalMonths\": 6.0");
+      json.append(",\n        \"requiredResponseTimeSeconds\": 10.0");
+      json.append(",\n        \"actualResponseTimeSeconds\": 5.0");
+    }
+    json.append("\n      }");
+    return json.toString();
   }
 
   // ========== Reservoir Examples ==========
@@ -726,7 +1002,8 @@ public final class ExampleCatalog {
   public static List<String> getCategories() {
     return Collections.unmodifiableList(Arrays.asList("flash", "process", "validation", "batch",
         "property-table", "phase-envelope", "pvt", "flow-assurance", "standards", "pipeline",
-        "reservoir", "economics", "materials-review", "bioprocess", "session", "visualization",
+        "water-hammer", "root-cause", "reservoir", "economics", "materials-review", "bioprocess",
+        "open-drain-review", "process-safety-review", "session", "visualization",
         "equipment-sizing", "comparison", "safety"));
   }
 
@@ -758,8 +1035,17 @@ public final class ExampleCatalog {
       return Arrays.asList("iso6976-gas");
     } else if ("pipeline".equals(category)) {
       return Arrays.asList("multiphase-flow");
+    } else if ("water-hammer".equals(category)) {
+      return Arrays.asList("valve-closure");
+    } else if ("root-cause".equals(category)) {
+      return Arrays.asList("compressor-high-vibration", "separator-liquid-carryover",
+          "hx-fouling");
     } else if ("materials-review".equals(category)) {
       return Arrays.asList("stid-register");
+    } else if ("open-drain-review".equals(category)) {
+      return Arrays.asList("norsok-s001-stid");
+    } else if ("process-safety-review".equals(category)) {
+      return Arrays.asList("norsok-s001-clause10");
     } else if ("reservoir".equals(category)) {
       return Arrays.asList("gas-depletion");
     } else if ("economics".equals(category)) {
@@ -852,9 +1138,31 @@ public final class ExampleCatalog {
       if ("multiphase-flow".equals(name)) {
         return pipelineMultiphase();
       }
+    } else if ("water-hammer".equals(category)) {
+      if ("valve-closure".equals(name)) {
+        return waterHammerValveClosure();
+      }
+    } else if ("root-cause".equals(category)) {
+      if ("compressor-high-vibration".equals(name)) {
+        return rootCauseCompressorHighVibration();
+      }
+      if ("separator-liquid-carryover".equals(name)) {
+        return rootCauseSeparatorLiquidCarryover();
+      }
+      if ("hx-fouling".equals(name)) {
+        return rootCauseHeatExchangerFouling();
+      }
     } else if ("materials-review".equals(category)) {
       if ("stid-register".equals(name)) {
         return materialsReviewStidRegister();
+      }
+    } else if ("open-drain-review".equals(category)) {
+      if ("norsok-s001-stid".equals(name)) {
+        return openDrainReviewNorsokS001Stid();
+      }
+    } else if ("process-safety-review".equals(category)) {
+      if ("norsok-s001-clause10".equals(name)) {
+        return norsokS001Clause10ProcessSafetySystem();
       }
     } else if ("reservoir".equals(category)) {
       if ("gas-depletion".equals(name)) {
@@ -988,11 +1296,39 @@ public final class ExampleCatalog {
         "Beggs & Brill multiphase pipeline flow for 50 km gas line");
     catalog.put("pipeline", pipeExamples);
 
+    // Water-hammer examples
+    Map<String, String> hammerExamples = new LinkedHashMap<String, String>();
+    hammerExamples.put("valve-closure",
+        "Water-hammer screening for fast ESD valve closure with STID/tagreader-style inputs");
+    catalog.put("water-hammer", hammerExamples);
+
+    // Root-cause analysis examples
+    Map<String, String> rcaExamples = new LinkedHashMap<String, String>();
+    rcaExamples.put("compressor-high-vibration",
+        "Compressor RCA combining process JSON, historian trend, design limits, and STID data");
+    rcaExamples.put("separator-liquid-carryover",
+        "Separator RCA with tagreader historian (PI), STID datasheet, and demister dP trend");
+    rcaExamples.put("hx-fouling",
+        "Heat exchanger fouling RCA with IP.21 historian, vendor data, and UA degradation");
+    catalog.put("root-cause", rcaExamples);
+
     // Materials review examples
     Map<String, String> materialsExamples = new LinkedHashMap<String, String>();
     materialsExamples.put("stid-register",
         "Materials selection, degradation, CUI, and remaining-life review from normalized STID records");
     catalog.put("materials-review", materialsExamples);
+
+    // Open-drain review examples
+    Map<String, String> openDrainExamples = new LinkedHashMap<String, String>();
+    openDrainExamples.put("norsok-s001-stid",
+      "NORSOK S-001 Clause 9 open-drain review from normalized STID and tagreader evidence");
+    catalog.put("open-drain-review", openDrainExamples);
+
+    // Process safety system review examples
+    Map<String, String> processSafetyExamples = new LinkedHashMap<String, String>();
+    processSafetyExamples.put("norsok-s001-clause10",
+        "NORSOK S-001 Clause 10 process safety system review from normalized C&E, SRS, PSV, and instrument evidence");
+    catalog.put("process-safety-review", processSafetyExamples);
 
     // Reservoir examples
     Map<String, String> resExamples = new LinkedHashMap<String, String>();

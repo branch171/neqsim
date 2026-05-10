@@ -626,6 +626,7 @@ Fluid characterization handles plus fraction splitting, property estimation, and
 | PSV Dynamic Sizing Wiki     | [docs/wiki/psv_dynamic_sizing_example.md](wiki/psv_dynamic_sizing_example)           | PSV dynamic sizing                                                                    |
 | PSV Dynamic Sizing          | [docs/safety/psv_dynamic_sizing_example.md](safety/psv_dynamic_sizing_example)       | PSV sizing example                                                                    |
 | Trapped Inventory Calculator | [docs/safety/trapped_inventory_calculator.md](safety/trapped_inventory_calculator) | Evidence-linked trapped inventory for isolation, blowdown, flare-load, and MDMT screening |
+| Trapped Liquid Fire Rupture | [docs/safety/trapped_liquid_fire_rupture.md](safety/trapped_liquid_fire_rupture) | Blocked-in liquid segment fire rupture screening with material, flange, PFP, and source-term handoff |
 | **Relief Valve Sizing API** | [docs/safety/relief_valve_sizing_api.md](safety/relief_valve_sizing_api)             | **API 520/521 PSV sizing for gas, liquid, and two-phase relief with fire heat input** |
 | PSD Valve Trip              | [docs/wiki/psd_valve_hihi_trip.md](wiki/psd_valve_hihi_trip)                         | PSD valve HIHI trip                                                                   |
 | Rupture Disks               | [docs/safety/rupture_disk_dynamic_behavior.md](safety/rupture_disk_dynamic_behavior) | Rupture disk behavior                                                                 |
@@ -642,6 +643,7 @@ Fluid characterization handles plus fraction splitting, property estimation, and
 
 | Document            | Path                                                                                     | Description                |
 | ------------------- | ---------------------------------------------------------------------------------------- | -------------------------- |
+| ESD Dynamic Testing | [docs/safety/esd_testing_workflow.md](safety/esd_testing_workflow)                       | ESD dynamic testing with process logic, tagreader evidence, and criteria reports |
 | ESD Blowdown        | [docs/safety/ESD_BLOWDOWN_SYSTEM.md](safety/ESD_BLOWDOWN_SYSTEM)                         | ESD blowdown system        |
 | Pressure Monitoring | [docs/safety/PRESSURE_MONITORING_ESD.md](safety/PRESSURE_MONITORING_ESD)                 | Pressure monitoring ESD    |
 | Fire Heat Transfer  | [docs/safety/fire_heat_transfer_enhancements.md](safety/fire_heat_transfer_enhancements) | Fire heat transfer         |
@@ -659,6 +661,7 @@ Fluid characterization handles plus fraction splitting, property estimation, and
 | Release Dispersion Scenarios | [docs/process/safety/release-dispersion-scenarios.md](process/safety/release-dispersion-scenarios) | Automatic leak source terms, gas dispersion screening, scenario taxonomy, trapped inventory, CFD source-term handoff cases, and industrial-readiness guidance from ProcessSystem streams |
 | Barrier Management  | [docs/safety/barrier_management.md](safety/barrier_management)                         | Evidence-linked PSF/SCE barrier register and safety-analysis handoffs |
 | Automated HAZOP     | [docs/safety/automated_hazop_from_stid.md](safety/automated_hazop_from_stid)           | STID/P&ID, plant data, NeqSim process simulation, HAZOP worksheet, barrier handoff, and report workflow |
+| Open Drain Review   | [docs/safety/open_drain_review.md](safety/open_drain_review)                           | NORSOK S-001 Clause 9 open-drain review using NeqSim-calculated liquid leak rate, firewater load, liquid density, pressure, and drain hydraulic capacity plus STID/tagreader evidence |
 
 ### Chapter 34b: Consequence Analysis & QRA
 
@@ -689,7 +692,7 @@ Comprehensive operational risk simulation framework for equipment failure analys
 | **Dependency Analysis**        | [docs/risk/dependency-analysis.md](risk/dependency-analysis)                       | DependencyAnalyzer, cascade failure trees, cross-installation effects                     |
 | **Mathematical Reference**     | [docs/risk/mathematical-reference.md](risk/mathematical-reference)                 | Complete formulas: reliability, system availability, Monte Carlo, risk calculations       |
 | **API Reference**              | [docs/risk/api-reference.md](risk/api-reference)                                   | Full API documentation for all risk simulation classes                                    |
-| **Reliability Data Guide**     | [docs/risk/RELIABILITY_DATA_GUIDE.md](risk/RELIABILITY_DATA_GUIDE)                 | OREDA-based reliability data, failure rate sources, equipment categories                  |
+| **Reliability Data Guide**     | [docs/risk/RELIABILITY_DATA_GUIDE.md](risk/RELIABILITY_DATA_GUIDE)                 | Multi-source reliability data (IOGP/SINTEF, CCPS, IEEE 493, Lees, OREDA), CSV format  |
 | **Physics-Based Integration**  | [docs/risk/PHYSICS_BASED_RISK_INTEGRATION.md](risk/PHYSICS_BASED_RISK_INTEGRATION) | **Integration of physics-based models with risk simulation for dynamic failure analysis** |
 
 ### Chapter 35a: Advanced Risk Framework (**NEW**)
@@ -722,8 +725,8 @@ Extended risk analysis capabilities implementing P1-P7 priority improvements for
 
 | Class                        | Package                     | Purpose                                  |
 | ---------------------------- | --------------------------- | ---------------------------------------- |
-| `EquipmentFailureMode`       | `process.equipment.failure` | Failure mode definitions with OREDA data |
-| `ReliabilityDataSource`      | `process.equipment.failure` | OREDA-based reliability data access      |
+| `EquipmentFailureMode`       | `process.equipment.failure` | Failure mode definitions with reliability data |
+| `ReliabilityDataSource`      | `process.equipment.failure` | Multi-source reliability data (IOGP/SINTEF, CCPS, IEEE 493, Lees, OREDA) |
 | `ProductionImpactAnalyzer`   | `process.safety.risk`       | Production loss analysis                 |
 | `DegradedOperationOptimizer` | `process.safety.risk`       | Degraded mode optimization               |
 | `OperationalRiskSimulator`   | `process.safety.risk`       | Monte Carlo simulation engine            |
@@ -731,6 +734,32 @@ Extended risk analysis capabilities implementing P1-P7 priority improvements for
 | `ProcessTopologyAnalyzer`    | `process.util.topology`     | Process graph extraction                 |
 | `FunctionalLocation`         | `process.util.topology`     | STID tag parsing (ISO 14224)             |
 | `DependencyAnalyzer`         | `process.util.topology`     | Equipment dependency analysis            |
+| `RootCauseAnalyzer`          | `process.diagnostics`       | Bayesian-inspired equipment RCA          |
+| `HypothesisGenerator`        | `process.diagnostics`       | Equipment-specific hypothesis libraries  |
+| `EvidenceCollector`          | `process.diagnostics`       | Time-series evidence scoring             |
+| `SimulationVerifier`         | `process.diagnostics`       | Clone-perturb-compare verification       |
+| `RootCauseReport`            | `process.diagnostics`       | Ranked diagnosis with JSON/text output   |
+
+### Chapter 35b: Equipment Diagnostics
+
+Root cause analysis framework for equipment operational anomalies using Bayesian-inspired
+hypothesis scoring with OREDA, historian, STID, and NeqSim simulation verification.
+
+| Document                   | Path                                                                               | Description                                                               |
+| -------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Root Cause Analysis**    | [docs/diagnostics/root_cause_analysis.md](diagnostics/root_cause_analysis)         | RCA framework architecture, confidence scoring, usage examples            |
+
+#### Key Classes in Diagnostics Framework
+
+| Class                  | Package                   | Purpose                                              |
+| ---------------------- | ------------------------- | ---------------------------------------------------- |
+| `Symptom`              | `process.diagnostics`     | 12 observable symptoms (TRIP, HIGH_VIBRATION, etc.)  |
+| `Hypothesis`           | `process.diagnostics`     | Ranked failure hypothesis with evidence and actions  |
+| `HypothesisGenerator`  | `process.diagnostics`     | Registry-based hypothesis generation with OREDA      |
+| `EvidenceCollector`    | `process.diagnostics`     | Time-series trend, threshold, and correlation analysis |
+| `SimulationVerifier`   | `process.diagnostics`     | Process model perturbation and verification scoring  |
+| `RootCauseReport`      | `process.diagnostics`     | Ranked report with JSON, text, and map output        |
+| `RootCauseAnalyzer`    | `process.diagnostics`     | Main orchestrator integrating all components         |
 
 ---
 
@@ -820,6 +849,7 @@ Extended risk analysis capabilities implementing P1-P7 priority improvements for
 | ------------ | ---------------------------------------------------------------------------- | ------------------------ |
 | Digital Twin | [docs/process/digital-twin-integration.md](process/digital-twin-integration) | Digital twin integration |
 | Plant Data & Tagreader | [docs/process/plant-data-tagreader.md](process/plant-data-tagreader) | Connecting NeqSim to plant historians (PI/IP.21) via tagreader |
+| Operational Evidence Package | [docs/process/operational_evidence_package.md](process/operational_evidence_package) | Combine P&ID/STID references, tagreader values, NeqSim scenario actions, and bottleneck detection into one operational study |
 | Lifecycle    | [docs/process/lifecycle/README.md](process/lifecycle/)                       | Lifecycle management     |
 
 ### Chapter 42: AI/ML Integration

@@ -1,7 +1,7 @@
 ---
 name: neqsim-depressurization-mdmt
 version: "1.0.0"
-description: "Emergency depressurization (blowdown) per API 521 §5.20 and minimum design metal temperature (MDMT) assessment per ASME UCS-66 / API 579 / EN 13445 — VU-flash transient inventory model, time-to-target-pressure, low-temperature embrittlement screening, and integration with PSV/flare loads. USE WHEN: a task requires sizing a blowdown valve, generating a P-vs-time curve for a vessel under fire / depressurization, checking MDMT against blowdown end-temperature, or providing source terms for relief and flare networks. Anchors on neqsim.process.safety.depressurization.DepressurizationSimulator and neqsim.process.safety.mdmt.MDMTCalculator."
+description: "Emergency depressurization (blowdown) per API 521 §5.20 and minimum design metal temperature (MDMT) assessment per ASME UCS-66 / API 579 / EN 13445 — VU-flash transient inventory model, time-to-target-pressure, low-temperature embrittlement screening, and integration with PSV/flare loads. USE WHEN: a task requires sizing a blowdown valve, generating a P-vs-time curve for a vessel under fire / depressurization, checking MDMT against blowdown end-temperature, providing source terms for relief and flare networks, or distinguishing blowdown from trapped-liquid fire rupture screening. Anchors on neqsim.process.safety.depressurization.DepressurizationSimulator and neqsim.process.safety.mdmt.MDMTCalculator."
 last_verified: "2026-04-26"
 requires:
   java_packages:
@@ -25,6 +25,8 @@ required.
 - Generating P(t), T(t), m(t) curves for the relief / flare load case
 - Screening MDMT against end-of-blowdown vessel-wall temperature
 - Producing source terms for the flare network (`neqsim-relief-flare-network`)
+- Distinguishing depressurization cases from blocked-in liquid fire rupture cases,
+  where `neqsim-trapped-liquid-fire-rupture` is the primary workflow
 
 Distinct from `neqsim-relief-flare-network` (steady-state PSV sizing) and
 `neqsim-dynamic-simulation` (continuous-process transients) — this skill is the
@@ -95,8 +97,7 @@ correlations can be used upstream.
 
 Typical workflow:
 
-1. Start from a target — 50 % of design pressure in 15 min (API 521) or 7 bar
-   in some operator standards (Equinor TR1011, Shell DEP).
+1. Start from a target such as 50 % of design pressure in 15 min (API 521), 7 bar in 15 min, or the relevant company/project criterion from the private basis.
 2. Guess BDV `Cd · A`, run `sim.run(...)`, read `sim.timeToPressure(target)`.
 3. Iterate area until target is met without choking the flare header.
 4. Verify the *minimum* T(t) is above the vessel MDMT.
@@ -135,8 +136,9 @@ if (!acceptable) {
 }
 ```
 
-Operator practice (NORSOK M-001 / Equinor TR1244) typically adds a 5–10 °C
-margin between blowdown end-temperature and MDMT.
+Many company practices add a 5-10 °C margin between blowdown end-temperature
+and MDMT. Record the actual project or operator margin in the private task
+basis instead of hard-coding it in public guidance.
 
 ## Method 4 — Source Term to Flare Network
 
@@ -180,6 +182,7 @@ network sizing skill (`neqsim-relief-flare-network`).
 ## See Also
 
 - `neqsim-relief-flare-network` — PSV sizing, flare radiation, header back-pressure
+- `neqsim-trapped-liquid-fire-rupture` — blocked-in liquid thermal expansion, PFP demand, and rupture source-term handoff
 - `neqsim-dynamic-simulation` — continuous-process transients with controllers
 - `neqsim-consequence-analysis` — what happens after the released gas ignites
 - `neqsim-flow-assurance` — JT cooling and hydrate formation in blowdown
