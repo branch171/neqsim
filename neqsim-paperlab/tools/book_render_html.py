@@ -11,6 +11,7 @@ Extends render_html_generic.py with:
 
 import re
 import shutil
+from collections import Counter
 from pathlib import Path
 
 import book_builder
@@ -40,11 +41,12 @@ def _html_head(title):
 <style>
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
 body {{
-  font-family: Georgia, 'Times New Roman', serif;
-  color: #222;
-  background: #f9f9f9;
-  display: flex;
-  min-height: 100vh;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #222;
+    background: #f9f9f9;
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
 }}
 
 /* Sidebar */
@@ -90,11 +92,13 @@ nav.sidebar a:hover {{
 
 /* Main content */
 main {{
-  flex: 1;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 2.5rem;
-  background: #fff;
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 2.5rem;
+    background: #fff;
 }}
 main h1 {{
   font-size: 1.8rem;
@@ -1639,6 +1643,27 @@ def _inline_fmt(text):
     return text
 
 
+def _deduplicate_heading_ids(html_text):
+    """Return HTML with duplicate heading id attributes made unique."""
+    all_id_counts = Counter(re.findall(r'\bid="([^"]+)"', html_text))
+    heading_ids = re.findall(r'<h[1-6][^>]*\bid="([^"]+)"', html_text)
+    for heading_id in heading_ids:
+        all_id_counts[heading_id] -= 1
+    seen_ids = {id_value for id_value, count in all_id_counts.items() if count > 0}
+
+    def replace_heading_id(match):
+        prefix, base_id, suffix = match.groups()
+        unique_id = base_id
+        counter = 2
+        while unique_id in seen_ids:
+            unique_id = f"{base_id}-{counter}"
+            counter += 1
+        seen_ids.add(unique_id)
+        return f'{prefix}{unique_id}{suffix}'
+
+    return re.sub(r'(<h[1-6][^>]*\bid=")([^"]+)(")', replace_heading_id, html_text)
+
+
 def _render_table(lines):
     """Convert pipe-delimited markdown table lines to HTML."""
     if len(lines) < 2:
@@ -1986,6 +2011,7 @@ def render_book_html(book_dir, chapter_filter=None):
     # so that submission/book.html (one level under book root) resolves correctly.
     html_text = "\n".join(parts)
     html_text = html_text.replace('src="../../figures/', 'src="../figures/')
+    html_text = _deduplicate_heading_ids(html_text)
 
     out_name = "book.html" if not chapter_filter else f"{chapter_filter}.html"
     out_path = submission_dir / out_name
